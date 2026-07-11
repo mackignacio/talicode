@@ -1,0 +1,4 @@
+# The native binaries are built + staged at release time (and by scripts/npm-smoke.sh),
+# never committed. Only the package.json templates are tracked.
+*/tali
+*/tali.exe
