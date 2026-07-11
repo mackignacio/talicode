@@ -1,0 +1,20 @@
+{
+  "name": "talicode-darwin-x64",
+  "version": "0.1.0",
+  "description": "TaliCode native `tali` binary for macOS (Intel / x64). Installed automatically as an optional dependency of @talicode/core.",
+  "homepage": "https://github.com/mackignacio/talicode#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mackignacio/talicode.git"
+  },
+  "license": "MIT",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "tali"
+  ]
+}
