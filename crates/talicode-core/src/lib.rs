@@ -4,6 +4,7 @@
 //! Implements #2 (workspace scaffold). Later phases add the provider seam,
 //! skill host, auditor, reporting, usage, and watch modules.
 
+pub mod architecture;
 pub mod auditor;
 pub mod config;
 pub mod episode;
