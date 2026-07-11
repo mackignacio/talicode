@@ -5,6 +5,7 @@
 //! skill host, auditor, reporting, usage, and watch modules.
 
 pub mod config;
+pub mod provider;
 
 /// The crate version, surfaced by the CLI's `--version`.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
