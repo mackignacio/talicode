@@ -7,4 +7,5 @@
 //! Discovery lands in #12 and invocation in #13.
 
 pub mod discover;
+pub mod invoke;
 pub mod skill;
