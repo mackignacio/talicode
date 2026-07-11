@@ -89,8 +89,8 @@ impl Skill {
         let kind = match fm.runs {
             Some(runs) => SkillKind::Orchestrator { runs },
             None => {
-                let text = rules_yaml
-                    .ok_or_else(|| SkillError::MissingRules(dir_name.to_string()))?;
+                let text =
+                    rules_yaml.ok_or_else(|| SkillError::MissingRules(dir_name.to_string()))?;
                 let rules: Vec<Rule> = serde_yaml::from_str(text)
                     .map_err(|e| SkillError::Rules(dir_name.to_string(), e))?;
                 SkillKind::Lens { rules }
@@ -137,7 +137,8 @@ impl Skill {
 fn split_frontmatter(text: &str) -> Option<(&str, &str)> {
     let rest = text.strip_prefix("---\n")?;
     let end = rest.find("\n---\n").or_else(|| {
-        rest.strip_suffix("\n---").map(|_| rest.len() - "\n---".len())
+        rest.strip_suffix("\n---")
+            .map(|_| rest.len() - "\n---".len())
     })?;
     let fm = &rest[..end];
     let body = rest[end..].trim_start_matches(['\n', '-']).trim_start();

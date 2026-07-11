@@ -74,7 +74,10 @@ fn push_unique<'a>(out: &mut Vec<&'a Skill>, seen: &mut BTreeSet<String>, skill:
 pub fn compose_guidance(lenses: &[&Skill]) -> String {
     let mut s = String::new();
     for lens in lenses {
-        s.push_str(&format!("## {} — {}\n{}\n", lens.name, lens.description, lens.guidance));
+        s.push_str(&format!(
+            "## {} — {}\n{}\n",
+            lens.name, lens.description, lens.guidance
+        ));
         if let SkillKind::Lens { rules } = &lens.kind {
             for rule in rules {
                 s.push_str(&format!(
@@ -139,8 +142,10 @@ pub async fn invoke_files(
     let mut findings = Vec::new();
     let mut usage = Usage::default();
     for (path, content) in sources {
-        let outcome =
-            invoke_file(provider, catalog, selection, path, content, model, effort, role).await?;
+        let outcome = invoke_file(
+            provider, catalog, selection, path, content, model, effort, role,
+        )
+        .await?;
         findings.extend(outcome.findings);
         usage += outcome.usage;
     }
@@ -188,7 +193,10 @@ mod tests {
         let cat = catalog();
         let lenses = expand(
             &cat,
-            &["code-clear-exit".to_string(), "code-early-return".to_string()],
+            &[
+                "code-clear-exit".to_string(),
+                "code-early-return".to_string(),
+            ],
         )
         .unwrap();
         assert_eq!(lenses.len(), 2);

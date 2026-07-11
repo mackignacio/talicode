@@ -61,7 +61,9 @@ pub fn staged_files(repo_root: &Path) -> Result<Vec<PathBuf>, GitError> {
         .output()
         .map_err(|e| GitError::Git(e.to_string()))?;
     if !out.status.success() {
-        return Err(GitError::Git(String::from_utf8_lossy(&out.stderr).into_owned()));
+        return Err(GitError::Git(
+            String::from_utf8_lossy(&out.stderr).into_owned(),
+        ));
     }
     Ok(parse_name_only(&String::from_utf8_lossy(&out.stdout)))
 }
@@ -153,8 +155,11 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("t.rs"), "let x = 1;").unwrap();
         std::fs::write(dir.path().join("b.rs"), [0u8, 1, 2, 3]).unwrap();
-        std::fs::write(dir.path().join("big.rs"), vec![b'a'; (MAX_FILE_BYTES + 1) as usize])
-            .unwrap();
+        std::fs::write(
+            dir.path().join("big.rs"),
+            vec![b'a'; (MAX_FILE_BYTES + 1) as usize],
+        )
+        .unwrap();
 
         let paths = vec![
             PathBuf::from("t.rs"),
@@ -164,8 +169,17 @@ mod tests {
         ];
         let (files, skipped) = read_sources(dir.path(), &paths);
 
-        assert_eq!(files, vec![SourceFile { path: "t.rs".into(), content: "let x = 1;".into() }]);
-        let reasons: Vec<_> = skipped.iter().map(|s| (s.path.as_str(), s.reason)).collect();
+        assert_eq!(
+            files,
+            vec![SourceFile {
+                path: "t.rs".into(),
+                content: "let x = 1;".into()
+            }]
+        );
+        let reasons: Vec<_> = skipped
+            .iter()
+            .map(|s| (s.path.as_str(), s.reason))
+            .collect();
         assert!(reasons.contains(&("b.rs", SkipReason::Binary)));
         assert!(reasons.contains(&("big.rs", SkipReason::TooLarge)));
         assert!(reasons.contains(&("missing.rs", SkipReason::Unreadable)));
