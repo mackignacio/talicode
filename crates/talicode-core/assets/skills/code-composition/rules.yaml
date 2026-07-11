@@ -1,0 +1,3 @@
+- id: inheritance-for-reuse
+  message: Inheritance used purely for code reuse where composition (has-a) fits better.
+  severity: info
