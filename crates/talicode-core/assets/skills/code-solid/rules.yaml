@@ -1,0 +1,6 @@
+- id: srp-violation
+  message: A type or function doing more than one job (single-responsibility violation).
+  severity: info
+- id: fat-interface
+  message: An interface forcing clients to depend on members they don't use.
+  severity: info
