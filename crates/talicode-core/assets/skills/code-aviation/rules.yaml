@@ -1,0 +1,9 @@
+- id: dynamic-allocation
+  message: Heap allocation (malloc/free/new) after initialization.
+  severity: error
+- id: recursion-banned
+  message: Any recursion (direct or indirect) — banned under DO-178C.
+  severity: error
+- id: implicit-conversion
+  message: An implicit type conversion that can truncate or corrupt data.
+  severity: error
