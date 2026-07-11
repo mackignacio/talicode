@@ -1,0 +1,3 @@
+- id: needless-complexity
+  message: Overly clever or convoluted code where a simpler, clearer form exists.
+  severity: warning
