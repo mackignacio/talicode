@@ -1,0 +1,3 @@
+- id: buried-return
+  message: A return buried inside a nested branch or mid-loop, obscuring control flow.
+  severity: warning

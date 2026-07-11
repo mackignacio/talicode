@@ -1,0 +1,3 @@
+- id: guard-clause
+  message: Deep nesting that a guard clause / early return would flatten.
+  severity: info

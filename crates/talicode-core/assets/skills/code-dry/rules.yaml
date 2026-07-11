@@ -1,0 +1,3 @@
+- id: duplication
+  message: The same non-trivial logic or value repeated instead of factored into one place.
+  severity: warning

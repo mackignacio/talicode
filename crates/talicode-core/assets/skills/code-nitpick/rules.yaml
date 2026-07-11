@@ -1,0 +1,3 @@
+- id: senior-nit
+  message: A senior-review concern — misleading name, unhandled edge case, or stale comment.
+  severity: info
