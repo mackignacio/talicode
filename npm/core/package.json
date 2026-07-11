@@ -1,0 +1,39 @@
+{
+  "name": "@talicode/core",
+  "version": "0.1.0",
+  "description": "TaliCode — the AI Slop Gatekeeper. Detect AI-generated code problems (hallucinated imports, lazy typing, bloated boilerplate) before commit. Ships the native `tali` binary.",
+  "keywords": [
+    "talicode",
+    "ai",
+    "code-review",
+    "linter",
+    "gatekeeper",
+    "static-analysis",
+    "pre-commit"
+  ],
+  "homepage": "https://github.com/mackignacio/talicode#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mackignacio/talicode.git"
+  },
+  "license": "MIT",
+  "bin": {
+    "tali": "bin/tali.js"
+  },
+  "files": [
+    "bin/tali.js"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "optionalDependencies": {
+    "talicode-darwin-arm64": "0.1.0",
+    "talicode-darwin-x64": "0.1.0",
+    "talicode-linux-x64": "0.1.0",
+    "talicode-linux-arm64": "0.1.0",
+    "talicode-win32-x64": "0.1.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
