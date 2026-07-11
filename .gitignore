@@ -1,0 +1,13 @@
+# Rust build output
+/target
+
+# TaliCode local state (token-usage ledger, etc.)
+.talicode/
+
+# npm distribution layer
+node_modules/
+npm/**/tali
+npm/**/tali.exe
+
+# OS / editor
+.DS_Store
