@@ -38,10 +38,11 @@ enum Command {
     Watch(commands::watch::Args),
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     match Cli::parse().command {
         Command::Init => commands::init::run(),
-        Command::Sweep(args) => commands::sweep::run(args),
+        Command::Sweep(args) => commands::sweep::run(args).await,
         Command::Heal => commands::heal::run(),
         Command::Skills(args) => commands::skills::run(args),
         Command::Usage(args) => commands::usage::run(args),
