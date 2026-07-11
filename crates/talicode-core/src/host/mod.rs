@@ -10,4 +10,5 @@
 
 pub mod discover;
 pub mod invoke;
+pub mod retrieve;
 pub mod skill;
