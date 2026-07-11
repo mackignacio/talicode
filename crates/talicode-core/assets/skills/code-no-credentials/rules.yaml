@@ -1,0 +1,3 @@
+- id: embedded-credential
+  message: An embedded login/account credential or a password handled in plaintext.
+  severity: error
