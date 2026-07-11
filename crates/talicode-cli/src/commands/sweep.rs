@@ -94,11 +94,13 @@ pub async fn execute(staged: bool, skill: Option<String>, json: bool) -> anyhow:
 /// Choose the auditor agent: the first step's agent, else the first defined agent.
 fn pick_auditor(config: &Config) -> anyhow::Result<Agent> {
     if let Some(step) = config.execution_flow.first() {
-        return config
-            .agents
-            .get(&step.agent)
-            .cloned()
-            .ok_or_else(|| anyhow!("step `{}` references undefined agent `{}`", step.step, step.agent));
+        return config.agents.get(&step.agent).cloned().ok_or_else(|| {
+            anyhow!(
+                "step `{}` references undefined agent `{}`",
+                step.step,
+                step.agent
+            )
+        });
     }
     config
         .agents
@@ -171,7 +173,10 @@ mod tests {
 
     #[test]
     fn select_skills_precedence() {
-        assert_eq!(select_skills(Some("code-no-keys"), &[]), vec!["code-no-keys"]);
+        assert_eq!(
+            select_skills(Some("code-no-keys"), &[]),
+            vec!["code-no-keys"]
+        );
         assert_eq!(
             select_skills(None, &["code-solid".to_string()]),
             vec!["code-solid"]
@@ -181,7 +186,10 @@ mod tests {
 
     #[test]
     fn resolve_target_uses_step_or_default() {
-        let c = config_with(&[("auditor", "m")], &[("sweep", "auditor", Some("./x/**/*.py"))]);
+        let c = config_with(
+            &[("auditor", "m")],
+            &[("sweep", "auditor", Some("./x/**/*.py"))],
+        );
         assert_eq!(resolve_target(&c), "./x/**/*.py");
         let c2 = config_with(&[("auditor", "m")], &[]);
         assert_eq!(resolve_target(&c2), DEFAULT_TARGET);
@@ -189,7 +197,10 @@ mod tests {
 
     #[test]
     fn pick_auditor_follows_step_then_falls_back() {
-        let c = config_with(&[("auditor", "claude-sonnet-5")], &[("sweep", "auditor", None)]);
+        let c = config_with(
+            &[("auditor", "claude-sonnet-5")],
+            &[("sweep", "auditor", None)],
+        );
         assert_eq!(pick_auditor(&c).unwrap().model, "claude-sonnet-5");
 
         let c2 = config_with(&[("only", "m2")], &[]);

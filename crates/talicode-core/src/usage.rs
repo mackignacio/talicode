@@ -29,10 +29,19 @@ pub struct Price {
 /// Estimated price for a model (defaults to Sonnet-5 rates for unknown models).
 pub fn price_for(model: &str) -> Price {
     match model {
-        "claude-opus-4-8" | "claude-opus-4-7" => Price { input_per_m: 5.0, output_per_m: 25.0 },
-        "claude-haiku-4-5" => Price { input_per_m: 1.0, output_per_m: 5.0 },
+        "claude-opus-4-8" | "claude-opus-4-7" => Price {
+            input_per_m: 5.0,
+            output_per_m: 25.0,
+        },
+        "claude-haiku-4-5" => Price {
+            input_per_m: 1.0,
+            output_per_m: 5.0,
+        },
         // claude-sonnet-5 and anything unrecognised.
-        _ => Price { input_per_m: 3.0, output_per_m: 15.0 },
+        _ => Price {
+            input_per_m: 3.0,
+            output_per_m: 15.0,
+        },
     }
 }
 
@@ -172,10 +181,16 @@ mod tests {
     #[test]
     fn append_then_read_round_trips() {
         let dir = tempfile::tempdir().unwrap();
-        append(dir.path(), &LedgerEntry::on("2026-07-11", usage(5, 1), "claude-sonnet-5", "sweep"))
-            .unwrap();
-        append(dir.path(), &LedgerEntry::on("2026-07-11", usage(7, 2), "claude-sonnet-5", "sweep"))
-            .unwrap();
+        append(
+            dir.path(),
+            &LedgerEntry::on("2026-07-11", usage(5, 1), "claude-sonnet-5", "sweep"),
+        )
+        .unwrap();
+        append(
+            dir.path(),
+            &LedgerEntry::on("2026-07-11", usage(7, 2), "claude-sonnet-5", "sweep"),
+        )
+        .unwrap();
         let rows = read(dir.path());
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[1].input, 7);
@@ -189,8 +204,20 @@ mod tests {
             LedgerEntry::on("2026-07-11", usage(3, 3), "m", "watch"),
         ];
         let days = roll_up(&rows);
-        assert_eq!(days["2026-07-10"], DailyTotal { input: 1, output: 1 });
-        assert_eq!(days["2026-07-11"], DailyTotal { input: 5, output: 5 });
+        assert_eq!(
+            days["2026-07-10"],
+            DailyTotal {
+                input: 1,
+                output: 1
+            }
+        );
+        assert_eq!(
+            days["2026-07-11"],
+            DailyTotal {
+                input: 5,
+                output: 5
+            }
+        );
     }
 
     #[test]

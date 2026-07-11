@@ -69,9 +69,7 @@ impl Catalog {
 
     /// Only the repo-authored skills (what `tali skills` lists by default).
     pub fn repo_skills(&self) -> impl Iterator<Item = &Discovered> {
-        self.skills
-            .values()
-            .filter(|d| d.source == Source::Repo)
+        self.skills.values().filter(|d| d.source == Source::Repo)
     }
 
     /// Resolve selected skill names to their skills, erroring on any unknown.
