@@ -357,6 +357,103 @@ fn write_all(root: &Path, episodes: &[Episode]) -> std::io::Result<()> {
     std::fs::write(dir.join(EPISODE_FILE), buf)
 }
 
+// --- Episodic → procedural auto-promotion (#46) ------------------------------
+
+/// A candidate skill synthesized from a recurring experience.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SkillDraft {
+    /// Skill folder name.
+    pub slug: String,
+    /// One-line description.
+    pub description: String,
+    /// The rule message the generated lens flags on.
+    pub rule_message: String,
+}
+
+/// Words dropped when deriving a skill slug from a preference sentence.
+const STOPWORDS: [&str; 20] = [
+    "the", "a", "an", "and", "or", "of", "to", "in", "on", "user", "users", "i", "we", "you",
+    "code", "codebase", "always", "never", "this", "that",
+];
+
+/// Words that mark a *negative* preference (⇒ the slug is prefixed `no-`).
+const NEGATIVE: [&str; 9] = [
+    "no", "not", "dont", "doesnt", "dislike", "dislikes", "hate", "hates", "avoid",
+];
+
+/// Which recurring experiences have crossed `threshold` and aren't already
+/// skills — the candidates to auto-promote. Pure: `existing` is the set of skill
+/// slugs to exclude. Experiences are grouped by their derived slug.
+pub fn due_for_skill(
+    episodes: &[Episode],
+    threshold: usize,
+    existing: &[String],
+) -> Vec<SkillDraft> {
+    let mut by_slug: std::collections::BTreeMap<String, Vec<&Episode>> =
+        std::collections::BTreeMap::new();
+    for e in episodes
+        .iter()
+        .filter(|e| e.memory_type == MemoryType::Experience)
+    {
+        by_slug.entry(derive_slug(&e.content)).or_default().push(e);
+    }
+    by_slug
+        .into_iter()
+        .filter(|(slug, group)| group.len() >= threshold && !existing.contains(slug))
+        .map(|(slug, group)| draft_from(slug, group[0]))
+        .collect()
+}
+
+/// Write a templated `skills/<slug>/` (SKILL.md + rules.yaml) for a draft. The
+/// generated skill parses through the host's skill loader like an authored one.
+pub fn promote(root: &Path, draft: &SkillDraft) -> std::io::Result<()> {
+    let dir = root.join("skills").join(&draft.slug);
+    std::fs::create_dir_all(&dir)?;
+    let skill_md = format!(
+        "---\nname: {}\ndescription: {}\n---\n{}\n",
+        draft.slug, draft.description, draft.description
+    );
+    let rules = format!(
+        "- id: {}-rule\n  message: {}\n  severity: warning\n",
+        draft.slug, draft.rule_message
+    );
+    std::fs::write(dir.join("SKILL.md"), skill_md)?;
+    std::fs::write(dir.join("rules.yaml"), rules)
+}
+
+fn draft_from(slug: String, source: &Episode) -> SkillDraft {
+    SkillDraft {
+        description: format!(
+            "Auto-generated from a recurring team preference: {}",
+            source.content
+        ),
+        rule_message: format!("Recorded team preference: {}", source.content),
+        slug,
+    }
+}
+
+/// Derive a skill slug from a preference sentence: keep meaningful words, and
+/// prefix `no-` when the sentence expresses a negative preference. E.g.
+/// "user dislikes while loops" → `no-while-loops`.
+fn derive_slug(content: &str) -> String {
+    let words = tokenize(content);
+    let negative = words.iter().any(|w| NEGATIVE.contains(&w.as_str()));
+    let kept: Vec<String> = words
+        .into_iter()
+        .filter(|w| !STOPWORDS.contains(&w.as_str()) && !NEGATIVE.contains(&w.as_str()))
+        .collect();
+    let core = if kept.is_empty() {
+        "preference".to_string()
+    } else {
+        kept.join("-")
+    };
+    if negative {
+        format!("no-{core}")
+    } else {
+        core
+    }
+}
+
 fn is_expired(e: &Episode, today: NaiveDate) -> bool {
     if e.tier != Tier::Scratch {
         return false;
@@ -579,5 +676,52 @@ mod tests {
         );
         assert_eq!(e.top_rules.as_ref().unwrap()[0], "code-no-keys");
         assert!(e.content.contains("3 finding(s) across 2 file(s)"));
+    }
+
+    #[test]
+    fn derive_slug_prefixes_no_for_negative_preference() {
+        assert_eq!(derive_slug("user dislikes while loops"), "no-while-loops");
+        assert_eq!(derive_slug("prefer guard clauses"), "prefer-guard-clauses");
+    }
+
+    #[test]
+    fn due_for_skill_respects_threshold_and_existing() {
+        let eps = vec![
+            ep(
+                1,
+                MemoryType::Experience,
+                "2026-07-10",
+                "user dislikes while loops",
+            ),
+            ep(
+                2,
+                MemoryType::Experience,
+                "2026-07-11",
+                "user dislikes while loops",
+            ),
+            ep(3, MemoryType::Learning, "2026-07-11", "unrelated learning"),
+        ];
+        let drafts = due_for_skill(&eps, 2, &[]);
+        assert_eq!(drafts.len(), 1);
+        assert_eq!(drafts[0].slug, "no-while-loops");
+        // Already a skill ⇒ excluded; below threshold ⇒ none.
+        assert!(due_for_skill(&eps, 2, &["no-while-loops".to_string()]).is_empty());
+        assert!(due_for_skill(&eps[..1], 2, &[]).is_empty());
+    }
+
+    #[test]
+    fn promote_writes_a_parseable_skill() {
+        let dir = tempfile::tempdir().unwrap();
+        let draft = SkillDraft {
+            slug: "no-while-loops".into(),
+            description: "avoid while loops".into(),
+            rule_message: "flag while loops".into(),
+        };
+        promote(dir.path(), &draft).unwrap();
+        let skill_dir = dir.path().join("skills/no-while-loops");
+        assert!(skill_dir.join("SKILL.md").is_file());
+        let s = crate::host::skill::Skill::load(&skill_dir).unwrap();
+        assert_eq!(s.name, "no-while-loops");
+        assert!(!s.is_orchestrator());
     }
 }
