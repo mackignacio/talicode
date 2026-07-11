@@ -4,8 +4,10 @@
 //! Implements #2 (workspace scaffold). Later phases add the provider seam,
 //! skill host, auditor, reporting, usage, and watch modules.
 
+pub mod auditor;
 pub mod config;
 pub mod provider;
+pub mod report;
 
 /// The crate version, surfaced by the CLI's `--version`.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
