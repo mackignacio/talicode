@@ -6,6 +6,7 @@
 
 pub mod auditor;
 pub mod config;
+pub mod episode;
 pub mod git;
 pub mod host;
 pub mod memory;
