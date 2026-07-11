@@ -11,6 +11,7 @@ pub mod host;
 pub mod provider;
 pub mod report;
 pub mod usage;
+pub mod watch;
 
 /// The crate version, surfaced by the CLI's `--version`.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
