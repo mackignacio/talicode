@@ -6,6 +6,8 @@
 //! [`Usage`]. The trait is the test seam: [`FakeProvider`] backs unit tests
 //! with no network. The Anthropic implementation lands in #9.
 
+pub mod anthropic;
+
 use async_trait::async_trait;
 use serde_json::Value;
 
@@ -82,10 +84,11 @@ pub trait Provider: Send + Sync {
 }
 
 /// Resolve a provider by its config `provider` name.
-///
-/// The Anthropic arm is wired in #9; for now every name is unknown.
 pub fn build_provider(name: &str) -> Result<Box<dyn Provider>, ProviderError> {
-    Err(ProviderError::Unknown(name.to_string()))
+    match name {
+        "anthropic" => Ok(Box::new(anthropic::AnthropicProvider::from_env()?)),
+        other => Err(ProviderError::Unknown(other.to_string())),
+    }
 }
 
 /// An in-process provider for tests: returns canned output + usage.
