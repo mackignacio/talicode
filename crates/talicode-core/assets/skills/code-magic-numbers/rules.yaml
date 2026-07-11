@@ -1,0 +1,3 @@
+- id: magic-number
+  message: A meaningful numeric literal (threshold, factor, duration) that should be a named constant.
+  severity: info
