@@ -24,6 +24,25 @@ pub struct Usage {
     pub cache_creation_input_tokens: u64,
 }
 
+impl std::ops::Add for Usage {
+    type Output = Usage;
+    fn add(self, rhs: Usage) -> Usage {
+        Usage {
+            input_tokens: self.input_tokens + rhs.input_tokens,
+            output_tokens: self.output_tokens + rhs.output_tokens,
+            cache_read_input_tokens: self.cache_read_input_tokens + rhs.cache_read_input_tokens,
+            cache_creation_input_tokens: self.cache_creation_input_tokens
+                + rhs.cache_creation_input_tokens,
+        }
+    }
+}
+
+impl std::ops::AddAssign for Usage {
+    fn add_assign(&mut self, rhs: Usage) {
+        *self = *self + rhs;
+    }
+}
+
 /// A tool the model must call, forcing structured output.
 #[derive(Debug, Clone)]
 pub struct ToolSpec {
