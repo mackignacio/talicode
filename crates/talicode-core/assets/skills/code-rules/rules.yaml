@@ -1,0 +1,6 @@
+- id: unchecked-return
+  message: A return value indicating success/failure is ignored.
+  severity: warning
+- id: complex-control-flow
+  message: Non-linear control flow (goto/longjmp) that defeats analyzability.
+  severity: warning

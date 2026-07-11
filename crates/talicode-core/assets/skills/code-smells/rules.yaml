@@ -1,0 +1,3 @@
+- id: design-smell
+  message: An introduced design smell (long function, long param list, feature envy, dead code, etc.).
+  severity: info

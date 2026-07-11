@@ -1,0 +1,3 @@
+- id: unbounded-loop
+  message: A loop with no statically verifiable upper bound (potential infinite loop).
+  severity: warning

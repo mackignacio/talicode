@@ -1,0 +1,3 @@
+- id: untested-public-surface
+  message: Exported/public API with no covering test or documented purpose.
+  severity: info

@@ -1,0 +1,6 @@
+- id: sleep-as-sync
+  message: sleep/setTimeout/delay used to coordinate concurrency (race condition); use real synchronization.
+  severity: error
+- id: data-race
+  message: Shared mutable state accessed concurrently without synchronization.
+  severity: error

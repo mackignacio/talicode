@@ -1,0 +1,3 @@
+- id: speculative-code
+  message: A feature, abstraction, or config added for a requirement that does not exist yet.
+  severity: warning

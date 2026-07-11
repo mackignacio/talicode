@@ -1,0 +1,3 @@
+- id: magic-string
+  message: A meaningful string literal (status, key, path) that should be a named constant.
+  severity: info
