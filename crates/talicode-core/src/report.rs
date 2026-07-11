@@ -121,9 +121,10 @@ mod tests {
 
     #[test]
     fn finding_file_defaults_when_absent() {
-        let f: Finding =
-            serde_json::from_value(json!({"line": 3, "severity": "info", "rule": "r", "message": "m"}))
-                .unwrap();
+        let f: Finding = serde_json::from_value(
+            json!({"line": 3, "severity": "info", "rule": "r", "message": "m"}),
+        )
+        .unwrap();
         assert_eq!(f.file, "");
         assert_eq!(f.line, 3);
     }

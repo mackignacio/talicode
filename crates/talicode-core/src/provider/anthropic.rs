@@ -223,7 +223,9 @@ mod tests {
         let server = MockServer::start().await;
         Mock::given(method("POST"))
             .and(path("/v1/messages"))
-            .respond_with(ResponseTemplate::new(401).set_body_json(json!({"error": "unauthorized"})))
+            .respond_with(
+                ResponseTemplate::new(401).set_body_json(json!({"error": "unauthorized"})),
+            )
             .mount(&server)
             .await;
 

@@ -24,7 +24,10 @@ pub fn run(args: Args) -> anyhow::Result<()> {
     if args.json {
         println!("{}", render_json(&days));
     } else {
-        print!("{}", render_human(&days, &usage::local_today(), RECENT_DAYS));
+        print!(
+            "{}",
+            render_human(&days, &usage::local_today(), RECENT_DAYS)
+        );
     }
     Ok(())
 }
@@ -60,8 +63,20 @@ mod tests {
 
     fn days() -> BTreeMap<String, DailyTotal> {
         let mut m = BTreeMap::new();
-        m.insert("2026-07-10".to_string(), DailyTotal { input: 1, output: 1 });
-        m.insert("2026-07-11".to_string(), DailyTotal { input: 5, output: 3 });
+        m.insert(
+            "2026-07-10".to_string(),
+            DailyTotal {
+                input: 1,
+                output: 1,
+            },
+        );
+        m.insert(
+            "2026-07-11".to_string(),
+            DailyTotal {
+                input: 5,
+                output: 3,
+            },
+        );
         m
     }
 
@@ -74,7 +89,10 @@ mod tests {
 
     #[test]
     fn human_empty_ledger() {
-        assert_eq!(render_human(&BTreeMap::new(), "2026-07-11", 14), "No usage recorded yet.\n");
+        assert_eq!(
+            render_human(&BTreeMap::new(), "2026-07-11", 14),
+            "No usage recorded yet.\n"
+        );
     }
 
     #[test]
