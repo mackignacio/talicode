@@ -17,6 +17,9 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 rust-embed = "8"
 globset = "0.4"
 walkdir = "2"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+notify = "8"
+tokio = { version = "1", features = ["sync"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }

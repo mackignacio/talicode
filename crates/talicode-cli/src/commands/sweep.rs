@@ -13,6 +13,7 @@ use talicode_core::git::{self, SkipReason};
 use talicode_core::host::{discover::Catalog, invoke};
 use talicode_core::provider;
 use talicode_core::report;
+use talicode_core::usage;
 
 /// Default target glob when the config's first step declares none.
 const DEFAULT_TARGET: &str = "./**/*.rs";
@@ -71,16 +72,20 @@ pub async fn execute(staged: bool, skill: Option<String>, json: bool) -> anyhow:
     )
     .await?;
 
+    // Record spend to the ledger (best-effort — never blocks a sweep).
+    let entry = usage::LedgerEntry::today(outcome.usage, &agent.model, "sweep");
+    if let Err(e) = usage::append(&root, &entry) {
+        eprintln!("warning: could not write usage ledger: {e}");
+    }
+
     if json {
         println!("{}", report::render_json(&outcome.findings));
     } else {
         print!("{}", report::render_human(&outcome.findings));
-        eprintln!(
-            "tokens: in {} / out {} (cached {})",
-            outcome.usage.input_tokens,
-            outcome.usage.output_tokens,
-            outcome.usage.cache_read_input_tokens
-        );
+        eprintln!("{}", usage::footer(outcome.usage, &agent.model));
+        if let Some(today) = usage::roll_up(&usage::read(&root)).get(&usage::local_today()) {
+            eprintln!("today: in {} / out {}", today.input, today.output);
+        }
     }
 
     Ok(report::exit_code(&outcome.findings, report::DEFAULT_GATE))
