@@ -125,6 +125,33 @@ pub async fn invoke_file(
     })
 }
 
+/// Invoke the selected skills over many files, aggregating findings and usage.
+/// `sources` is `(path, content)` pairs.
+pub async fn invoke_files(
+    provider: &dyn Provider,
+    catalog: &Catalog,
+    selection: &[String],
+    sources: &[(String, String)],
+    model: &str,
+    effort: &str,
+    role: &str,
+) -> Result<SweepOutcome, InvokeError> {
+    let mut findings = Vec::new();
+    let mut usage = Usage::default();
+    for (path, content) in sources {
+        let outcome =
+            invoke_file(provider, catalog, selection, path, content, model, effort, role).await?;
+        findings.extend(outcome.findings);
+        usage += outcome.usage;
+    }
+    let findings = dedup(findings);
+    Ok(SweepOutcome {
+        approved: findings.is_empty(),
+        findings,
+        usage,
+    })
+}
+
 /// De-duplicate findings by (file, line, rule) — keeps the first of each.
 fn dedup(findings: Vec<Finding>) -> Vec<Finding> {
     let mut seen: BTreeSet<(String, u32, String)> = BTreeSet::new();
@@ -220,6 +247,38 @@ mod tests {
         assert_eq!(outcome.findings.len(), 1);
         assert!(!outcome.approved);
         assert_eq!(outcome.findings[0].file, "src/lib.rs");
+    }
+
+    #[tokio::test]
+    async fn invoke_files_aggregates_across_sources_and_sums_usage() {
+        let cat = catalog();
+        let provider = FakeProvider::new(
+            json!({"findings": [{"line": 1, "severity": "warning", "rule": "magic-number", "message": "n"}]}),
+            Usage {
+                input_tokens: 5,
+                output_tokens: 1,
+                ..Default::default()
+            },
+        );
+        let sources = vec![
+            ("a.rs".to_string(), "let a = 42;".to_string()),
+            ("b.rs".to_string(), "let b = 99;".to_string()),
+        ];
+        let outcome = invoke_files(
+            &provider,
+            &cat,
+            &["code-magic-numbers".to_string()],
+            &sources,
+            "claude-sonnet-5",
+            "medium",
+            "auditor",
+        )
+        .await
+        .unwrap();
+        // one finding per file (different files ⇒ not de-duped), usage summed
+        assert_eq!(outcome.findings.len(), 2);
+        assert_eq!(outcome.usage.input_tokens, 10);
+        assert!(!outcome.approved);
     }
 
     #[tokio::test]
