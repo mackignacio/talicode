@@ -41,7 +41,9 @@ const GITIGNORE_LINE: &str = ".talicode/";
 pub fn run() -> anyhow::Result<()> {
     let root = std::env::current_dir().context("cannot resolve the current directory")?;
     scaffold(&root)?;
-    println!("Initialized TaliCode: wrote {CONFIG_FILENAME}, created skills/, ignored {GITIGNORE_LINE}");
+    println!(
+        "Initialized TaliCode: wrote {CONFIG_FILENAME}, created skills/, ignored {GITIGNORE_LINE}"
+    );
     Ok(())
 }
 
@@ -100,7 +102,11 @@ mod tests {
     #[test]
     fn scaffold_refuses_to_overwrite_existing_config() {
         let dir = tempfile::tempdir().unwrap();
-        std::fs::write(dir.path().join(CONFIG_FILENAME), "version: \"9\"\nname: keep\n").unwrap();
+        std::fs::write(
+            dir.path().join(CONFIG_FILENAME),
+            "version: \"9\"\nname: keep\n",
+        )
+        .unwrap();
 
         let err = scaffold(dir.path()).unwrap_err();
         assert!(err.to_string().contains("refusing to overwrite"));
