@@ -46,7 +46,7 @@ async fn main() -> anyhow::Result<()> {
         Command::Heal => commands::heal::run().await,
         Command::Skills(args) => commands::skills::run(args),
         Command::Usage(args) => commands::usage::run(args),
-        Command::Watch(args) => commands::watch::run(args),
+        Command::Watch(args) => commands::watch::run(args).await,
     }
 }
 
