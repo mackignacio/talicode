@@ -43,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
     match Cli::parse().command {
         Command::Init => commands::init::run(),
         Command::Sweep(args) => commands::sweep::run(args).await,
-        Command::Heal => commands::heal::run(),
+        Command::Heal => commands::heal::run().await,
         Command::Skills(args) => commands::skills::run(args),
         Command::Usage(args) => commands::usage::run(args),
         Command::Watch(args) => commands::watch::run(args),
