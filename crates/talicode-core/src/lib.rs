@@ -8,6 +8,7 @@ pub mod auditor;
 pub mod config;
 pub mod git;
 pub mod host;
+pub mod memory;
 pub mod provider;
 pub mod report;
 pub mod usage;
