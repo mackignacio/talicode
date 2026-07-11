@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 //! TaliCode core — the AI Slop Gatekeeper engine.
 //!
-//! Implements #2 (workspace scaffold). Later phases add the config schema,
-//! provider seam, skill host, auditor, reporting, usage, and watch modules.
+//! Implements #2 (workspace scaffold). Later phases add the provider seam,
+//! skill host, auditor, reporting, usage, and watch modules.
+
+pub mod config;
 
 /// The crate version, surfaced by the CLI's `--version`.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
