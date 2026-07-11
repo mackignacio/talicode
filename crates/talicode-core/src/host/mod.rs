@@ -6,4 +6,5 @@
 //! skill by feeding its guidance + rules to the Auditor over the provider.
 //! Discovery lands in #12 and invocation in #13.
 
+pub mod discover;
 pub mod skill;
