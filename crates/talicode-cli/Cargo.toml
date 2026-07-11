@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "talicode-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "TaliCode CLI — the `tali` command."
+
+[[bin]]
+name = "tali"
+path = "src/main.rs"
+
+[dependencies]
+talicode-core = { path = "../talicode-core" }

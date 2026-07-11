@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+[workspace]
+resolver = "2"
+members = ["crates/talicode-cli", "crates/talicode-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/mackignacio/talicode"
+authors = ["Mack Ignacio"]
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
