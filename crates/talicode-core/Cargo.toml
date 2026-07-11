@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "talicode-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "TaliCode core engine — the AI Slop Gatekeeper."
+
+[dependencies]
