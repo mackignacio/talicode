@@ -1,0 +1,3 @@
+- id: unbounded-recursion
+  message: Recursion with no reachable terminating base case (stack-overflow risk).
+  severity: error
