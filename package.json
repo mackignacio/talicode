@@ -1,6 +1,6 @@
 {
-  "name": "@talicode/core",
-  "version": "0.1.0",
+  "name": "talicode",
+  "version": "0.0.1",
   "description": "TaliCode — the AI Slop Gatekeeper. Detect AI-generated code problems (hallucinated imports, lazy typing, bloated boilerplate) before commit. Ships the native `tali` binary.",
   "keywords": [
     "talicode",
@@ -12,11 +12,15 @@
     "pre-commit"
   ],
   "homepage": "https://github.com/mackignacio/talicode#readme",
+  "bugs": {
+    "url": "https://github.com/mackignacio/talicode/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mackignacio/talicode.git"
   },
   "license": "MIT",
+  "author": "Mac Ignacio",
   "bin": {
     "tali": "bin/tali.js"
   },
@@ -27,11 +31,11 @@
     "node": ">=16"
   },
   "optionalDependencies": {
-    "talicode-darwin-arm64": "0.1.0",
-    "talicode-darwin-x64": "0.1.0",
-    "talicode-linux-x64": "0.1.0",
-    "talicode-linux-arm64": "0.1.0",
-    "talicode-win32-x64": "0.1.0"
+    "talicode-darwin-arm64": "0.0.1",
+    "talicode-darwin-x64": "0.0.1",
+    "talicode-linux-x64": "0.0.1",
+    "talicode-linux-arm64": "0.0.1",
+    "talicode-win32-x64": "0.0.1"
   },
   "scripts": {
     "test": "node --test"
