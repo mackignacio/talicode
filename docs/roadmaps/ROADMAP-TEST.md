@@ -48,6 +48,24 @@ Bundled adapter targets (illustrative — the point is breadth):
 - **Infrastructure as Code** — Terraform (`validate`/`plan`, tflint, Terratest, checkov), Kubernetes
   (kubeconform, conftest/OPA), Docker (hadolint), shell (bats).
 
+### Reference adapter — Python (strict quality gate)
+
+The first concrete adapter, and the template for the rest. "Test" here means the **full quality
+gate**, not just unit tests — the adapter runs each step in order and passes only when **every one is
+green**:
+
+1. `ruff format --check` — formatting is clean (no diff).
+2. `ruff check` — lints clean.
+3. `flake8` — clean.
+4. `pylint --fail-under=10.0` — must score a perfect **10.00/10** (zero warnings).
+5. `pytest` — the test suite passes.
+
+Any non-zero exit — or a pylint score below `10.00` — fails the gate, and each failure normalizes
+into a `file:line` finding like any other adapter's output. "Green" therefore means **formatted +
+lint-clean + a perfect pylint score + passing tests** — the same bar TaliCode holds its own code to.
+The step commands and thresholds (e.g. the pylint floor) are overridable in the `test:` block of
+`config.tali`, so a project can relax or tighten them.
+
 ## Stack detection
 
 TaliCode Test reuses the **architectural memory** map plus file signatures to pick which adapters
