@@ -412,18 +412,36 @@ pub fn due_for_skill(
 }
 
 /// Write a templated `skills/<slug>/` (SKILL.md + rules.yaml) for a draft. The
-/// generated skill parses through the host's skill loader like an authored one.
+/// frontmatter and rules are serialized with `serde_yaml` so text containing
+/// colons/quotes stays valid YAML — the generated skill parses through the
+/// host's skill loader like an authored one.
 pub fn promote(root: &Path, draft: &SkillDraft) -> std::io::Result<()> {
+    #[derive(Serialize)]
+    struct Frontmatter<'a> {
+        name: &'a str,
+        description: &'a str,
+    }
+    #[derive(Serialize)]
+    struct PromotedRule<'a> {
+        id: String,
+        message: &'a str,
+        severity: &'a str,
+    }
+
     let dir = root.join("skills").join(&draft.slug);
     std::fs::create_dir_all(&dir)?;
-    let skill_md = format!(
-        "---\nname: {}\ndescription: {}\n---\n{}\n",
-        draft.slug, draft.description, draft.description
-    );
-    let rules = format!(
-        "- id: {}-rule\n  message: {}\n  severity: warning\n",
-        draft.slug, draft.rule_message
-    );
+    let fm = serde_yaml::to_string(&Frontmatter {
+        name: &draft.slug,
+        description: &draft.description,
+    })
+    .map_err(std::io::Error::other)?;
+    let skill_md = format!("---\n{fm}---\n{}\n", draft.description);
+    let rules = serde_yaml::to_string(&[PromotedRule {
+        id: format!("{}-rule", draft.slug),
+        message: &draft.rule_message,
+        severity: "warning",
+    }])
+    .map_err(std::io::Error::other)?;
     std::fs::write(dir.join("SKILL.md"), skill_md)?;
     std::fs::write(dir.join("rules.yaml"), rules)
 }
@@ -719,11 +737,28 @@ mod tests {
     #[test]
     fn promote_writes_a_parseable_skill() {
         let dir = tempfile::tempdir().unwrap();
-        let draft = SkillDraft {
-            slug: "no-while-loops".into(),
-            description: "avoid while loops".into(),
-            rule_message: "flag while loops".into(),
-        };
+        // Use the REAL generated draft — its description/message contain a colon,
+        // which must not break the YAML frontmatter/rules.
+        let eps = vec![
+            ep(
+                1,
+                MemoryType::Experience,
+                "2026-07-10",
+                "user dislikes while loops",
+            ),
+            ep(
+                2,
+                MemoryType::Experience,
+                "2026-07-11",
+                "user dislikes while loops",
+            ),
+        ];
+        let draft = due_for_skill(&eps, 2, &[]).remove(0);
+        assert!(
+            draft.description.contains(':'),
+            "realistic draft text has a colon"
+        );
+
         promote(dir.path(), &draft).unwrap();
         let skill_dir = dir.path().join("skills/no-while-loops");
         assert!(skill_dir.join("SKILL.md").is_file());
