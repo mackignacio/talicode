@@ -1,7 +1,7 @@
 {
   "name": "talicode",
   "version": "0.0.1",
-  "description": "TaliCode — the AI Slop Gatekeeper. Detect AI-generated code problems (hallucinated imports, lazy typing, bloated boilerplate) before commit. Ships the native `tali` binary.",
+  "description": "\"Your CTO running in the background\" a Zero-Trust execution harness, AI Slop Gatekeeper and multi-agent orchestrator.",
   "keywords": [
     "talicode",
     "ai",
