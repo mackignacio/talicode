@@ -1,17 +1,12 @@
 // SPDX-License-Identifier: MIT
 //! TaliCode core — the AI Slop Gatekeeper engine.
 //!
-//! Implements #2 (workspace scaffold). Later phases add the provider seam,
-//! skill host, auditor, reporting, usage, and watch modules.
+//! Implements #2 (workspace scaffold). Provides the shared foundation — the
+//! provider seam, configuration, git integration, reporting, usage, and watch
+//! modules — depended on by the agent, skills, and memory crates.
 
-pub mod architecture;
-pub mod auditor;
 pub mod config;
-pub mod context;
-pub mod episode;
 pub mod git;
-pub mod host;
-pub mod memory;
 pub mod provider;
 pub mod report;
 pub mod usage;

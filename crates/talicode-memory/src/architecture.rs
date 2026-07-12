@@ -8,9 +8,9 @@
 //! Code hook are roadmap. `build`/`arch_lookup`/`overview` are pure; `scan`/
 //! `save`/`load` do the IO.
 
-use crate::watch::is_ignored;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use talicode_core::watch::is_ignored;
 
 /// Repo-local dir for the map (committed — a team-shared project map).
 pub const ARCH_DIR: &str = ".talicode";
