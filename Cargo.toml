@@ -1,7 +1,13 @@
 # SPDX-License-Identifier: MIT
 [workspace]
 resolver = "2"
-members = ["crates/talicode-cli", "crates/talicode-core"]
+members = [
+    "crates/talicode-cli",
+    "crates/talicode-core",
+    "crates/talicode-agent",
+    "crates/talicode-skills",
+    "crates/talicode-memory",
+]
 
 [workspace.package]
 version = "0.0.1"

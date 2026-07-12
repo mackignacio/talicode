@@ -7,10 +7,10 @@
 //! line-anchored violations and prefers silence over speculation — false
 //! positives are what kill adoption.
 
-use crate::provider::{CompletionRequest, Provider, ProviderError, ToolSpec, Usage};
-use crate::report::Finding;
 use serde::Deserialize;
 use serde_json::{json, Value};
+use talicode_core::provider::{CompletionRequest, Provider, ProviderError, ToolSpec, Usage};
+use talicode_core::report::Finding;
 
 /// What to audit and how.
 #[derive(Debug, Clone)]
@@ -151,8 +151,8 @@ fn number_lines(content: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::provider::{FakeProvider, Usage};
-    use crate::report::Severity;
+    use talicode_core::provider::{FakeProvider, Usage};
+    use talicode_core::report::Severity;
 
     fn request() -> AuditRequest {
         AuditRequest {
