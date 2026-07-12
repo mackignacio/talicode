@@ -27,10 +27,13 @@ full design for the **MIT-licensed** VS Code extension that wraps it.
 **Goals**
 - Surface TaliCode findings inline as you type/save, with the same verdict a `tali sweep` would give.
 - Make the healing flow (see [ROADMAP-HEAL](./ROADMAP-HEAL.md)) reachable from a diagnostic.
+- Provide an **in-editor chat** — a Claude-Code-style conversational agent, driven by TaliCode's own
+  agents, memory, and skills.
 - First-class `config.tali` editing and visibility into memory/skills.
 
 **Non-goals**
-- Re-implementing detection in TypeScript.
+- Re-implementing detection — or the agent loop, or model integration — in TypeScript. The chat
+  drives TaliCode's agents through the CLI; it does not embed its own provider client.
 - Editors other than VS Code (JetBrains, Neovim) — separate future work.
 - CI / server-side gating — that lives with the commercial server roadmaps
   ([ROADMAP-TALICLOUD](./ROADMAP-TALICLOUD.md), [ROADMAP-TALIAGENTICSERVER](./ROADMAP-TALIAGENTICSERVER.md)).
@@ -68,7 +71,36 @@ The smallest useful extension: watch the workspace and paint findings.
 - **Save-gated sweep option** — optionally run `tali sweep` on save (in addition to the watcher) for
   immediate feedback on the just-saved file.
 
-### Phase V3 — Memory & skills surfacing
+### Phase V3 — Chat (in-editor conversational agent)
+
+A **Claude-Code-style chat panel** in the sidebar — an interactive way to ask TaliCode about the
+codebase, request reviews, and apply fixes conversationally. It is a *front-end to TaliCode's own
+agent*, not a second assistant: the extension does not embed a provider client or a model loop, it
+talks to an interactive `tali` agent mode (see the note below) so the CLI stays the single source of
+truth for prompts, provider seam, memory, and skills.
+
+- **Conversational agent** — a webview chat backed by the `config.tali` agent(s) over the existing
+  provider seam (Anthropic Messages API, streamed responses).
+- **Grounded in TaliCode's memory** — answers draw on **semantic** facts, **episodic** history, and
+  the **architectural map** (`tali map`) so the agent reasons from the project's own context and
+  looks up structure instead of re-grepping; the conversation is bounded by the working-memory budget
+  and compressed into episodic memory when it ends (so "what did we do last time?" carries over).
+- **Skill-aware** — the procedural search injects only the relevant `code-*` lenses for what's being
+  discussed; the chat can explain a finding ("why was this flagged?") from the rule guidance.
+- **Agentic actions with safe apply** — ask it to sweep, explain, refactor, or fix; proposed edits
+  are applied through the **Heal** flow (diff + approve), never written silently. This depends on the
+  agentic tool-loop upgrade shared with [ROADMAP-HEAL](./ROADMAP-HEAL.md).
+- **Context attach** — `@`-mention files/symbols (resolved via the architectural map), add the current
+  selection, or drag a diagnostic into the chat as context.
+- **Session history** — conversations persist (and summarize) into episodic memory, so past chats are
+  recallable and inform later reviews.
+
+> **CLI dependency:** the chat needs an interactive/agent surface on the CLI (e.g. a `tali agent` /
+> `tali chat` mode exposing a streamed, tool-enabled loop over stdio or a local socket). Designing
+> that surface is a prerequisite and is tracked alongside the agentic upgrade in
+> [ROADMAP-HEAL](./ROADMAP-HEAL.md); the extension is purely its UI.
+
+### Phase V4 — Memory & skills surfacing
 
 - **Skills view** — a tree of the active lenses (`tali skills --all`), showing which are bundled vs.
   repo-authored and which the search would inject for the current file.
@@ -77,7 +109,7 @@ The smallest useful extension: watch the workspace and paint findings.
 - **"Why flagged" hover/detail** — render the finding's rule guidance and any relevant memory context
   the Auditor used, so the verdict is explainable in-editor.
 
-### Phase V4 — Team & platform integration
+### Phase V5 — Team & platform integration
 
 - **Settings sync & multi-root** — coherent behavior across multi-root workspaces and synced settings.
 - **Cloud hooks** — optional integration points for the commercial products
@@ -119,6 +151,13 @@ The smallest useful extension: watch the workspace and paint findings.
   before staying silent.
 - **Diagnostics for unsaved buffers** — whether to sweep dirty editors (via a temp file) or only
   saved files.
+- **Chat transport** — how the extension drives the interactive agent: a long-lived `tali agent`
+  process over stdio, a local socket, or JSON-RPC — and how streaming tokens and tool calls are
+  framed on that channel.
+- **Chat ↔ episodic memory** — when a conversation is compressed into episodic memory, how much is
+  kept vs. summarized, and how the user browses/prunes past chat sessions.
+- **Edit application** — whether chat-proposed edits always route through Heal Preview (diff +
+  approve) or allow a trusted auto-apply mode, and how multi-file edits are staged.
 
 ## Relationship to other roadmaps
 
