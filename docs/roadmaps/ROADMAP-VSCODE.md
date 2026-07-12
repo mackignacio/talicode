@@ -29,6 +29,8 @@ full design for the **MIT-licensed** VS Code extension that wraps it.
 - Make the healing flow (see [ROADMAP-HEAL](./ROADMAP-HEAL.md)) reachable from a diagnostic.
 - Provide an **in-editor chat** — a Claude-Code-style conversational agent, driven by TaliCode's own
   agents, memory, and skills.
+- Give users **cost control** — a settings panel to turn subsystems (skills, agent, memory) on/off, a
+  token-usage dashboard, and per-component model routing — all editing `config.tali`.
 - First-class `config.tali` editing and visibility into memory/skills.
 
 **Non-goals**
@@ -100,14 +102,33 @@ truth for prompts, provider seam, memory, and skills.
 > that surface is a prerequisite and is tracked alongside the agentic upgrade in
 > [ROADMAP-HEAL](./ROADMAP-HEAL.md); the extension is purely its UI.
 
-### Phase V4 — Memory & skills surfacing
+### Phase V4 — Control panel: settings, cost control & model routing
 
-- **Skills view** — a tree of the active lenses (`tali skills --all`), showing which are bundled vs.
-  repo-authored and which the search would inject for the current file.
-- **Memory view** — browse semantic facts and the episodic timeline (`tali memory list/timeline
-  --json`); add a fact from a selection (`tali memory add`).
-- **"Why flagged" hover/detail** — render the finding's rule guidance and any relevant memory context
-  the Auditor used, so the verdict is explainable in-editor.
+A settings surface for managing what TaliCode runs and what it costs. Every toggle is a **projection
+of `config.tali`** — the panel reads and writes that file, so the CLI stays authoritative and the
+choices are committable and shareable.
+
+- **Settings UI — turn subsystems on/off** (to bound token spend):
+  - **Skills** — enable/disable individual `code-*` lenses, switch `skill_retrieval` between `search`
+    (only matched lenses injected) and `all`, and edit the always-run security floor.
+  - **Agent** — enable/disable the auditor and set its effort level.
+  - **Memory** — toggle the whole `memory:` block or individual types (working, semantic, procedural,
+    episodic, architectural), with the budgets (`context_budget_tokens`, soft/hard) editable inline.
+- **Token-usage dashboard** — visualize the `tali usage --json` ledger: today's spend, daily history,
+  and a breakdown by command and model with the cost estimate, so the toggles above are informed by
+  what's actually driving spend.
+- **Per-component model routing** — a tab to choose the inference model **per agent, per skill, and
+  per memory operation** (e.g. a cheap model for memory summarization, a stronger one for the
+  auditor), written as per-component `model` overrides in `config.tali`. *(Requires a config-schema
+  extension to accept a `model` override at the skill and memory-operation level, not just the
+  agent.)*
+- **Browse views** (explainability, alongside the controls):
+  - **Skills view** — a tree of the active lenses (`tali skills --all`), bundled vs. repo-authored,
+    and which the search would inject for the current file.
+  - **Memory view** — browse semantic facts and the episodic timeline (`tali memory list/timeline
+    --json`); add a fact from a selection (`tali memory add`).
+  - **"Why flagged" hover/detail** — the finding's rule guidance plus the memory context the Auditor
+    used, so the verdict is explainable in-editor.
 
 ### Phase V5 — Team & platform integration
 
@@ -158,6 +179,9 @@ truth for prompts, provider seam, memory, and skills.
   kept vs. summarized, and how the user browses/prunes past chat sessions.
 - **Edit application** — whether chat-proposed edits always route through Heal Preview (diff +
   approve) or allow a trusted auto-apply mode, and how multi-file edits are staged.
+- **Per-component model schema** — how `config.tali` should express a model override per skill and
+  per memory operation (not just per agent), and sensible defaults so a skill/memory without an
+  explicit model inherits the agent's.
 
 ## Relationship to other roadmaps
 
