@@ -1,5 +1,5 @@
 {
-  "name": "talicode",
+  "name": "@talicode.ai/core",
   "version": "0.0.1",
   "description": "\"Your CTO running in the background\" a Zero-Trust execution harness, AI Slop Gatekeeper and multi-agent orchestrator.",
   "keywords": [
@@ -21,6 +21,9 @@
   },
   "license": "MIT",
   "author": "Mac Ignacio",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "tali": "bin/tali.js"
   },
