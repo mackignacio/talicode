@@ -34,6 +34,78 @@ pub struct Config {
     /// orchestrator (all default lenses).
     #[serde(default)]
     pub skills: Vec<String>,
+    /// Long-term memory settings (all defaulted; omit the section entirely to
+    /// keep the pre-memory behavior).
+    #[serde(default)]
+    pub memory: MemoryConfig,
+}
+
+/// Settings for TaliCode's five-type memory. Every field has a default, so an
+/// existing `config.tali` with no `memory:` section behaves exactly as before.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(default)]
+pub struct MemoryConfig {
+    /// Master switch for memory injection.
+    pub enabled: bool,
+    /// Per-turn context budget (tokens) for the assembled memory block.
+    pub context_budget_tokens: usize,
+    /// Soft conversation budget; compression may fire past this once idle.
+    pub working_memory_soft_budget_tokens: u64,
+    /// Hard conversation ceiling; compression fires even mid-task here.
+    pub working_memory_hard_budget_tokens: u64,
+    /// `"search"` (native skill retrieval) or `"all"` (run every selected lens).
+    pub skill_retrieval: String,
+    /// Max skills the native search injects per trigger.
+    pub skill_search_limit: usize,
+    /// Skills always injected regardless of the search (the security floor).
+    pub always_run_skills: Vec<String>,
+    /// Max semantic facts injected per session.
+    pub semantic_limit: usize,
+    /// Whether episodic memory is enabled.
+    pub episodic: bool,
+    /// Recurrence count at which an experience auto-promotes to a skill.
+    pub experience_to_skill_threshold: usize,
+    /// Whether recurring experiences auto-promote to skills.
+    pub auto_promote_skills: bool,
+    /// TTL (hours) for scratch episodes.
+    pub episodic_scratch_ttl_hours: u64,
+    /// Keyword-relevance weight in the episodic ranking.
+    pub rank_w_fts: f64,
+    /// Recency weight in the episodic ranking.
+    pub rank_w_recency: f64,
+    /// Recency half-life (days) in the episodic ranking.
+    pub rank_half_life_days: f64,
+    /// Whether architectural memory is built/refreshed.
+    pub architecture: bool,
+    /// Whether the architecture overview is injected into context.
+    pub architecture_overview_in_context: bool,
+}
+
+impl Default for MemoryConfig {
+    fn default() -> Self {
+        MemoryConfig {
+            enabled: true,
+            context_budget_tokens: 2000,
+            working_memory_soft_budget_tokens: 250_000,
+            working_memory_hard_budget_tokens: 500_000,
+            skill_retrieval: "search".to_string(),
+            skill_search_limit: 6,
+            always_run_skills: vec![
+                "code-no-keys".to_string(),
+                "code-no-credentials".to_string(),
+            ],
+            semantic_limit: 8,
+            episodic: true,
+            experience_to_skill_threshold: 2,
+            auto_promote_skills: true,
+            episodic_scratch_ttl_hours: 24,
+            rank_w_fts: 0.4,
+            rank_w_recency: 0.2,
+            rank_half_life_days: 30.0,
+            architecture: true,
+            architecture_overview_in_context: true,
+        }
+    }
 }
 
 /// An agent definition — which provider/model plays a role.
@@ -143,6 +215,40 @@ skills:
         assert_eq!(c.agents["auditor"].effort, "medium");
         assert_eq!(c.execution_flow[0].agent, "auditor");
         assert_eq!(c.skills, vec!["code-review"]);
+    }
+
+    #[test]
+    fn memory_defaults_when_section_absent() {
+        let c = Config::parse(VALID).expect("valid config parses");
+        // No `memory:` block ⇒ the full default config.
+        assert_eq!(c.memory, MemoryConfig::default());
+        assert!(c.memory.enabled);
+        assert_eq!(c.memory.working_memory_soft_budget_tokens, 250_000);
+        assert_eq!(c.memory.working_memory_hard_budget_tokens, 500_000);
+        assert_eq!(c.memory.skill_retrieval, "search");
+        assert!(c
+            .memory
+            .always_run_skills
+            .contains(&"code-no-keys".to_string()));
+    }
+
+    #[test]
+    fn memory_partial_section_overrides_only_named_fields() {
+        let yaml = r#"
+version: "1.0"
+name: "x"
+agents:
+  auditor: { provider: "anthropic", model: "claude-sonnet-5" }
+memory:
+  skill_retrieval: "all"
+  skill_search_limit: 3
+"#;
+        let c = Config::parse(yaml).expect("partial memory block parses");
+        assert_eq!(c.memory.skill_retrieval, "all");
+        assert_eq!(c.memory.skill_search_limit, 3);
+        // Unspecified fields keep their defaults.
+        assert!(c.memory.enabled);
+        assert_eq!(c.memory.experience_to_skill_threshold, 2);
     }
 
     #[test]
