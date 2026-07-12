@@ -9,10 +9,25 @@
 
 use crate::auditor::{audit, AuditRequest};
 use crate::host::discover::{Catalog, DiscoverError};
+use crate::host::retrieve;
 use crate::host::skill::{Skill, SkillKind};
 use crate::provider::{Provider, ProviderError, Usage};
 use crate::report::Finding;
 use std::collections::BTreeSet;
+
+/// Memory-aware options for an invocation (all default ⇒ pre-memory behavior:
+/// every selected lens runs and no memory context is injected).
+#[derive(Debug, Clone, Default)]
+pub struct InvokeOptions {
+    /// Assembled long-term memory context injected into the Auditor prompt.
+    pub memory: String,
+    /// `"search"` ⇒ native skill retrieval; anything else ⇒ run every lens.
+    pub retrieval: String,
+    /// Max skills the search injects per file.
+    pub skill_limit: usize,
+    /// Skills always injected regardless of the search (the security floor).
+    pub always_run: Vec<String>,
+}
 
 /// The result of invoking the selected skills over one file.
 #[derive(Debug, Clone)]
@@ -104,9 +119,17 @@ pub async fn invoke_file(
     model: &str,
     effort: &str,
     role: &str,
+    opts: &InvokeOptions,
 ) -> Result<SweepOutcome, InvokeError> {
     let lenses = expand(catalog, selection)?;
-    let guidance = compose_guidance(&lenses);
+    // Procedural memory: with "search", inject only the skills the native search
+    // matches for this file (plus the always-run floor); otherwise run them all.
+    let chosen: Vec<&Skill> = if opts.retrieval == "search" {
+        retrieve::retrieve(&lenses, content, opts.skill_limit, &opts.always_run)
+    } else {
+        lenses
+    };
+    let guidance = compose_guidance(&chosen);
     let outcome = audit(
         provider,
         AuditRequest {
@@ -116,6 +139,7 @@ pub async fn invoke_file(
             effort: effort.to_string(),
             role: role.to_string(),
             guidance,
+            memory: opts.memory.clone(),
         },
     )
     .await?;
@@ -130,6 +154,7 @@ pub async fn invoke_file(
 
 /// Invoke the selected skills over many files, aggregating findings and usage.
 /// `sources` is `(path, content)` pairs.
+#[allow(clippy::too_many_arguments)]
 pub async fn invoke_files(
     provider: &dyn Provider,
     catalog: &Catalog,
@@ -138,12 +163,13 @@ pub async fn invoke_files(
     model: &str,
     effort: &str,
     role: &str,
+    opts: &InvokeOptions,
 ) -> Result<SweepOutcome, InvokeError> {
     let mut findings = Vec::new();
     let mut usage = Usage::default();
     for (path, content) in sources {
         let outcome = invoke_file(
-            provider, catalog, selection, path, content, model, effort, role,
+            provider, catalog, selection, path, content, model, effort, role, opts,
         )
         .await?;
         findings.extend(outcome.findings);
@@ -249,6 +275,7 @@ mod tests {
             "claude-sonnet-5",
             "medium",
             "auditor",
+            &InvokeOptions::default(),
         )
         .await
         .unwrap();
@@ -280,6 +307,7 @@ mod tests {
             "claude-sonnet-5",
             "medium",
             "auditor",
+            &InvokeOptions::default(),
         )
         .await
         .unwrap();
@@ -302,6 +330,7 @@ mod tests {
             "claude-sonnet-5",
             "medium",
             "auditor",
+            &InvokeOptions::default(),
         )
         .await
         .unwrap();

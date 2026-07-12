@@ -34,15 +34,23 @@ execution_flow:
 # (all default lenses). List specific skills to narrow the sweep.
 skills:
   - code-review
+
+# Long-term memory (all fields optional; omit this block for the defaults).
+# memory:
+#   skill_retrieval: "search"        # "search" (native, token-saving) or "all"
+#   experience_to_skill_threshold: 2 # recurring experiences → auto-created skills
 "#;
 
-const GITIGNORE_LINE: &str = ".talicode/";
+/// Local-only memory files to git-ignore. Durable semantic memory
+/// (`.talicode/memory/`) and the architecture map (`.talicode/architecture.json`)
+/// are intentionally committed so the team shares the Auditor's context.
+const GITIGNORE_LINES: [&str; 2] = [".talicode/usage.jsonl", ".talicode/episodes.jsonl"];
 
 pub fn run() -> anyhow::Result<()> {
     let root = std::env::current_dir().context("cannot resolve the current directory")?;
     scaffold(&root)?;
     println!(
-        "Initialized TaliCode: wrote {CONFIG_FILENAME}, created skills/, ignored {GITIGNORE_LINE}"
+        "Initialized TaliCode: wrote {CONFIG_FILENAME}, created skills/, git-ignored the local usage + episode logs"
     );
     Ok(())
 }
@@ -67,20 +75,25 @@ fn scaffold(root: &Path) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Append `.talicode/` to the repo `.gitignore` if not already present.
+/// Append the local-only memory files to the repo `.gitignore` (idempotently).
 fn ensure_gitignored(root: &Path) -> anyhow::Result<()> {
     let path = root.join(".gitignore");
-    let existing = std::fs::read_to_string(&path).unwrap_or_default();
-    if existing.lines().any(|l| l.trim() == GITIGNORE_LINE) {
-        return Ok(());
-    }
-    let mut updated = existing;
-    if !updated.is_empty() && !updated.ends_with('\n') {
+    let mut updated = std::fs::read_to_string(&path).unwrap_or_default();
+    let mut changed = false;
+    for line in GITIGNORE_LINES {
+        if updated.lines().any(|l| l.trim() == line) {
+            continue;
+        }
+        if !updated.is_empty() && !updated.ends_with('\n') {
+            updated.push('\n');
+        }
+        updated.push_str(line);
         updated.push('\n');
+        changed = true;
     }
-    updated.push_str(GITIGNORE_LINE);
-    updated.push('\n');
-    std::fs::write(&path, updated).with_context(|| format!("updating {}", path.display()))?;
+    if changed {
+        std::fs::write(&path, updated).with_context(|| format!("updating {}", path.display()))?;
+    }
     Ok(())
 }
 
@@ -116,19 +129,26 @@ mod tests {
     }
 
     #[test]
-    fn gitignore_gets_talicode_line_without_duplicating() {
+    fn gitignore_gets_local_memory_lines_without_duplicating() {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join(".gitignore"), "/target\n").unwrap();
 
         scaffold(dir.path()).unwrap();
         let gi = std::fs::read_to_string(dir.path().join(".gitignore")).unwrap();
-        assert_eq!(gi.matches(GITIGNORE_LINE).count(), 1);
+        for line in GITIGNORE_LINES {
+            assert_eq!(gi.matches(line).count(), 1, "{line} present once");
+        }
         assert!(gi.contains("/target"));
+        // Durable memory + the architecture map are NOT ignored (team-shared).
+        assert!(!gi.contains(".talicode/memory/"));
+        assert!(!gi.contains("architecture.json"));
 
-        // second scaffold in a fresh config-less dir is idempotent on the line
+        // second scaffold in a fresh config-less dir is idempotent on the lines
         std::fs::remove_file(dir.path().join(CONFIG_FILENAME)).unwrap();
         scaffold(dir.path()).unwrap();
         let gi2 = std::fs::read_to_string(dir.path().join(".gitignore")).unwrap();
-        assert_eq!(gi2.matches(GITIGNORE_LINE).count(), 1);
+        for line in GITIGNORE_LINES {
+            assert_eq!(gi2.matches(line).count(), 1);
+        }
     }
 }
