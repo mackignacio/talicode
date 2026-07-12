@@ -105,6 +105,11 @@ pub fn local_today() -> String {
     chrono::Local::now().date_naive().to_string()
 }
 
+/// Today's local date as a `NaiveDate` (for memory ranking/recency).
+pub fn local_today_naive() -> chrono::NaiveDate {
+    chrono::Local::now().date_naive()
+}
+
 /// Append a row to `<root>/.talicode/usage.jsonl`. Best-effort: returns Err on
 /// failure so the caller can warn, but the caller must not abort a sweep on it.
 pub fn append(root: &Path, entry: &LedgerEntry) -> std::io::Result<()> {

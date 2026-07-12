@@ -8,12 +8,11 @@
 
 use anyhow::{anyhow, Context};
 use clap::Args as ClapArgs;
-use talicode_core::config::{Agent, Config};
+use std::path::Path;
+use talicode_core::config::{Agent, Config, MemoryConfig};
 use talicode_core::git::{self, SkipReason};
 use talicode_core::host::{discover::Catalog, invoke};
-use talicode_core::provider;
-use talicode_core::report;
-use talicode_core::usage;
+use talicode_core::{architecture, context, episode, memory, provider, report, usage};
 
 /// Default target glob when the config's first step declares none.
 const DEFAULT_TARGET: &str = "./**/*.rs";
@@ -61,6 +60,17 @@ pub async fn execute(staged: bool, skill: Option<String>, json: bool) -> anyhow:
     let catalog = Catalog::discover(&root)?;
     let pairs: Vec<(String, String)> = sources.into_iter().map(|s| (s.path, s.content)).collect();
 
+    let opts = invoke::InvokeOptions {
+        memory: if config.memory.enabled {
+            memory_context(&root, &config.memory)
+        } else {
+            String::new()
+        },
+        retrieval: config.memory.skill_retrieval.clone(),
+        skill_limit: config.memory.skill_search_limit,
+        always_run: config.memory.always_run_skills.clone(),
+    };
+
     let outcome = invoke::invoke_files(
         provider.as_ref(),
         &catalog,
@@ -69,6 +79,7 @@ pub async fn execute(staged: bool, skill: Option<String>, json: bool) -> anyhow:
         &agent.model,
         &agent.effort,
         &agent.role,
+        &opts,
     )
     .await?;
 
@@ -76,6 +87,14 @@ pub async fn execute(staged: bool, skill: Option<String>, json: bool) -> anyhow:
     let entry = usage::LedgerEntry::today(outcome.usage, &agent.model, "sweep");
     if let Err(e) = usage::append(&root, &entry) {
         eprintln!("warning: could not write usage ledger: {e}");
+    }
+
+    // Record a compressed episode of this sweep (best-effort).
+    if config.memory.enabled && config.memory.episodic {
+        let files: Vec<String> = pairs.iter().map(|(p, _)| p.clone()).collect();
+        if let Err(e) = episode::record(&root, episode::summarize(&outcome, &files)) {
+            eprintln!("warning: could not record episode: {e}");
+        }
     }
 
     if json {
@@ -136,6 +155,33 @@ fn skip_label(reason: SkipReason) -> &'static str {
     }
 }
 
+/// Assemble the long-term memory context (semantic + episodic + architecture
+/// overview) under the configured budget. Best-effort — missing stores ⇒ empty
+/// sections ⇒ empty context ⇒ zero behavior change.
+fn memory_context(root: &Path, cfg: &MemoryConfig) -> String {
+    let today = usage::local_today_naive();
+    let semantic = memory::build_section(&memory::read(root), today, cfg.semantic_limit);
+    let episodic = if cfg.episodic {
+        episode::build_context(&episode::read(root), today, cfg.semantic_limit)
+    } else {
+        String::new()
+    };
+    let arch = if cfg.architecture && cfg.architecture_overview_in_context {
+        architecture::load(root)
+            .map(|m| architecture::overview(&m))
+            .unwrap_or_default()
+    } else {
+        String::new()
+    };
+    let parts = context::ContextParts {
+        procedural: String::new(),
+        semantic,
+        architecture: arch,
+        episodic,
+    };
+    context::assemble(&parts, cfg.context_budget_tokens)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -168,6 +214,7 @@ mod tests {
                 })
                 .collect(),
             skills: vec![],
+            memory: Default::default(),
         }
     }
 
