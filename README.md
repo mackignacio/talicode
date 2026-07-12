@@ -4,7 +4,7 @@
 
 <h1 align="center">TaliCode</h1>
 
-<p align="center"><strong>The AI Slop Gatekeeper — your CTO running in the background.</strong></p>
+<p align="center"><strong>Your CTO in the background.</strong></p>
 
 ---
 
@@ -23,7 +23,7 @@ built later.
 ## Why "TaliCode"?
 
 The name draws from a Tagalog metaphor that captures both the mechanics and the philosophy of the
-platform (the capital **C** splits *Tali + Code*):
+platform (the capital **C** splits _Tali + Code_):
 
 - **Tali / Talian** ("to tie / harness") — the **mechanical layer**: the execution harness that
   ties OpenAI, Gemini, and Claude into one pipeline.
@@ -90,16 +90,16 @@ trips — so the same exit code drives the future pre-commit hook.
 
 ## Commands
 
-| Command | What it does |
-| --- | --- |
-| `tali init` | Scaffold `config.tali` + `skills/` (refuses to overwrite an existing config). |
-| `tali sweep [--staged] [--skill <name>] [--json]` | Detect slop/violations in staged or target files. A bare sweep runs the `code-review` orchestrator (all default lenses). |
-| `tali heal` | Runs a sweep, then points at the healing roadmap (healing not yet enabled). |
-| `tali watch [--json]` | Monitor the current folder/repo and re-sweep on save (debounced). |
-| `tali skills [--all]` | List your repo's authored skills; `--all` includes the bundled `code-*` defaults. |
-| `tali usage [--json]` | Show token spend: today's total + recent daily history. |
-| `tali memory …` | Manage long-term memory — semantic `add`/`list`/`search`/`forget`; episodic `remember`/`recall`/`timeline`/`supersede`/`prune`. |
-| `tali map [--rebuild]` | Build/refresh and show the codebase architectural map. |
+| Command                                           | What it does                                                                                                                    |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `tali init`                                       | Scaffold `config.tali` + `skills/` (refuses to overwrite an existing config).                                                   |
+| `tali sweep [--staged] [--skill <name>] [--json]` | Detect slop/violations in staged or target files. A bare sweep runs the `code-review` orchestrator (all default lenses).        |
+| `tali heal`                                       | Runs a sweep, then points at the healing roadmap (healing not yet enabled).                                                     |
+| `tali watch [--json]`                             | Monitor the current folder/repo and re-sweep on save (debounced).                                                               |
+| `tali skills [--all]`                             | List your repo's authored skills; `--all` includes the bundled `code-*` defaults.                                               |
+| `tali usage [--json]`                             | Show token spend: today's total + recent daily history.                                                                         |
+| `tali memory …`                                   | Manage long-term memory — semantic `add`/`list`/`search`/`forget`; episodic `remember`/`recall`/`timeline`/`supersede`/`prune`. |
+| `tali map [--rebuild]`                            | Build/refresh and show the codebase architectural map.                                                                          |
 
 ## How it works
 
@@ -111,7 +111,7 @@ rule, message }`, aggregated and de-duplicated by file + line.
 
 The hard, valuable part is **trustworthy detection with low false positives**, so the MVP invests
 there and keeps a clean provider seam (OpenAI/Gemini can plug in later). The **Surgeon** agent that
-*fixes* findings is designed in [ROADMAP-HEAL](docs/roadmaps/ROADMAP-HEAL.md) — TaliCode never
+_fixes_ findings is designed in [ROADMAP-HEAL](docs/roadmaps/ROADMAP-HEAL.md) — TaliCode never
 silently overwrites a commit.
 
 ### Default skills
@@ -135,7 +135,7 @@ Auditor's context:
 - **Procedural** — the skills, retrieved by a native search so only relevant lenses enter the prompt
   (no resident index), with an always-run security floor.
 - **Episodic** — a searchable long-term store of learnings / mistakes / experiences (`tali memory
-  remember`); a recurring experience **auto-promotes into a skill**.
+remember`); a recurring experience **auto-promotes into a skill**.
 - **Architectural** — a codebase map (`tali map`) whose overview is injected instead of re-grepping.
 
 Memory is on by default and degrades to a no-op when empty; tune it under the `memory:` block in
@@ -147,13 +147,13 @@ hook) are in [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md).
 TaliCode is a Rust cargo workspace of five independently-buildable crates. The dependency graph is
 acyclic — `cli → {core, agent, skills, memory}` and `memory → skills → agent → core`:
 
-| Crate | What it does | Detailed docs |
-| --- | --- | --- |
-| [`talicode-core`](crates/talicode-core) | The foundation: config schema (`config.tali`), the staged-git reader, the findings/report types, the token-usage ledger, `watch` file-change detection, and the provider seam (Anthropic's Messages API, structured outputs). No dependency on the other crates. | [phase-1](docs/plans/phase-1-cli-config.md) · [phase-2](docs/plans/phase-2-provider-auditor.md) · [phase-4](docs/plans/phase-4-sweep-report.md) · [phase-5](docs/plans/phase-5-usage-watch.md) |
-| [`talicode-agent`](crates/talicode-agent) | The **Auditor** — builds the system prompt (role + guidance + injected memory), calls the provider, and returns schema-validated findings. | [phase-2](docs/plans/phase-2-provider-auditor.md) |
-| [`talicode-skills`](crates/talicode-skills) | The **skill host** — discovers and parses the `SKILL.md` + `rules.yaml` lenses (the 22 bundled `code-*` skills embedded via rust-embed) and composes guidance; includes the native skill search. | [phase-3](docs/plans/phase-3-skill-host.md) |
-| [`talicode-memory`](crates/talicode-memory) | The five-type **long-term memory** — working (context assembly + compression), semantic, episodic (with auto-promotion to skills), and architectural (codebase map). | [phase-8](docs/plans/phase-8-memory.md) · [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md) |
-| [`talicode-cli`](crates/talicode-cli) | The `tali` binary — argument parsing and the `init` / `sweep` / `heal` / `watch` / `skills` / `usage` / `memory` / `map` commands that wire the other crates together. | [phase-1](docs/plans/phase-1-cli-config.md) |
+| Crate                                       | What it does                                                                                                                                                                                                                                                     | Detailed docs                                                                                                                                                                                  |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`talicode-core`](crates/talicode-core)     | The foundation: config schema (`config.tali`), the staged-git reader, the findings/report types, the token-usage ledger, `watch` file-change detection, and the provider seam (Anthropic's Messages API, structured outputs). No dependency on the other crates. | [phase-1](docs/plans/phase-1-cli-config.md) · [phase-2](docs/plans/phase-2-provider-auditor.md) · [phase-4](docs/plans/phase-4-sweep-report.md) · [phase-5](docs/plans/phase-5-usage-watch.md) |
+| [`talicode-agent`](crates/talicode-agent)   | The **Auditor** — builds the system prompt (role + guidance + injected memory), calls the provider, and returns schema-validated findings.                                                                                                                       | [phase-2](docs/plans/phase-2-provider-auditor.md)                                                                                                                                              |
+| [`talicode-skills`](crates/talicode-skills) | The **skill host** — discovers and parses the `SKILL.md` + `rules.yaml` lenses (the 22 bundled `code-*` skills embedded via rust-embed) and composes guidance; includes the native skill search.                                                                 | [phase-3](docs/plans/phase-3-skill-host.md)                                                                                                                                                    |
+| [`talicode-memory`](crates/talicode-memory) | The five-type **long-term memory** — working (context assembly + compression), semantic, episodic (with auto-promotion to skills), and architectural (codebase map).                                                                                             | [phase-8](docs/plans/phase-8-memory.md) · [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md)                                                                                                    |
+| [`talicode-cli`](crates/talicode-cli)       | The `tali` binary — argument parsing and the `init` / `sweep` / `heal` / `watch` / `skills` / `usage` / `memory` / `map` commands that wire the other crates together.                                                                                           | [phase-1](docs/plans/phase-1-cli-config.md)                                                                                                                                                    |
 
 The full module → issue → phase map is in [docs/TRACEABILITY.md](docs/TRACEABILITY.md); the overall
 design is in [docs/plans/MVP.md](docs/plans/MVP.md).
