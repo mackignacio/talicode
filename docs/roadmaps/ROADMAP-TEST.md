@@ -84,12 +84,26 @@ lint-clean + a perfect pylint score + passing tests** — the same bar TaliCode 
 The step commands and thresholds (e.g. the pylint floor) are overridable in the `test:` block of
 `config.tali`, so a project can relax or tighten them.
 
-## Stack detection
+## Stack detection — automatic, from the code
 
-TaliCode Test reuses the **architectural memory** map plus file signatures to pick which adapters
-apply to the *changed* files — so in a monorepo, `tali test` runs only the suites relevant to what
-changed (the Python service's pytest, the web app's Vitest, the `infra/` Terraform checks) rather
-than everything.
+**The user never picks a test type; TaliCode figures it out from the file itself.** Each changed file
+is classified and routed to the matching adapter automatically, using layered signals (cheapest
+first):
+
+1. **Extension** — `.py` → Python, `.ts`/`.tsx` → TypeScript, `.go` → Go, `.rs` → Rust, `.tf` →
+   Terraform, `.swift` → iOS, `.kt` → Android/Kotlin, `.dart` → Flutter, and so on.
+2. **Content signatures** — shebangs, imports, and framework markers disambiguate when the extension
+   isn't enough: `import pytest` vs. `unittest`, `from playwright` vs. a Vitest `describe`, a React
+   component vs. a plain TS module, `provider "aws"` in HCL.
+3. **Project manifests + architectural map** — `pyproject.toml`, `package.json` test scripts,
+   `go.mod`, `Cargo.toml`, `build.gradle`, `pubspec.yaml`, resolved against the
+   [architectural memory](./ROADMAP-MEMORY.md) map to know which module/suite a file belongs to.
+
+Detection is the adapter's own `detect` step, so it stays extensible — a new adapter teaches TaliCode
+a new signature set, no core change. In a monorepo this means a single `tali test` run
+auto-dispatches only the relevant suites for what changed: the Python service's pytest, the web app's
+Vitest, the `infra/` Terraform checks — each file to its right runner, with no manual selection. An
+explicit `--adapter <name>` override is available for the rare case detection guesses wrong.
 
 ## Phased plan
 
