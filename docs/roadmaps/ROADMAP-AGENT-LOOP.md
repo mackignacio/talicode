@@ -165,8 +165,8 @@ heal action), [ROADMAP-TEST](./ROADMAP-TEST.md) (test actions in the Act phase),
 - **Concurrency & debounce** — overlapping triggers (a save mid-pass), and coalescing rapid events
   into one iteration.
 - **Multi-agent scheduling** — today there is one Auditor; the loop is designed to schedule several
-  agents (auditor, surgeon, test-gen). The orchestration policy (order, when each runs, budget split)
-  is open.
+  agents (auditor, surgeon, test-gen). The spawn/claim/report/aggregate model is defined in
+  [ROADMAP-MULTI-AGENT](./ROADMAP-MULTI-AGENT.md).
 - **Always-on economics** — scheduling/backoff and per-period cost caps for the autonomous server
   mode.
 - **Connector trust** — vetting third-party/MCP connectors, sandboxing their execution, scoping their
