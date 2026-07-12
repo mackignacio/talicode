@@ -170,7 +170,8 @@ Deferred scope is documented, not hidden:
 
 - [ROADMAP-AGENT-LOOP](docs/roadmaps/ROADMAP-AGENT-LOOP.md) — the agent loop that makes TaliCode
   "run in the background": the observe→orient→decide→act→learn cycle and its agentic tool-use inner
-  loop. Today's `tali sweep`/`watch` are single iterations of it; the other roadmaps are its phases.
+  loop, calling both internal tools and external connectors (git, GitHub, Atlassian, Terraform, CI, …)
+  under a Zero-Trust approval policy. Today's `tali sweep`/`watch` are single iterations of it.
 - [ROADMAP-HEAL](docs/roadmaps/ROADMAP-HEAL.md) — the Surgeon agent: Heal Preview (diff + approve)
   and opt-in Auto-Heal.
 - [ROADMAP-TEST](docs/roadmaps/ROADMAP-TEST.md) — **TaliCode Test**: universal test orchestration via
