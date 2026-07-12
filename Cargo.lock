@@ -1454,13 +1454,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "talicode-agent"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "talicode-core",
+ "tokio",
+]
+
+[[package]]
 name = "talicode-cli"
 version = "0.0.1"
 dependencies = [
  "anyhow",
  "clap",
  "serde_json",
+ "talicode-agent",
  "talicode-core",
+ "talicode-memory",
+ "talicode-skills",
  "tempfile",
  "tokio",
 ]
@@ -1474,7 +1487,6 @@ dependencies = [
  "globset",
  "notify",
  "reqwest",
- "rust-embed",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -1483,6 +1495,35 @@ dependencies = [
  "tokio",
  "walkdir",
  "wiremock",
+]
+
+[[package]]
+name = "talicode-memory"
+version = "0.0.1"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "talicode-core",
+ "talicode-skills",
+ "tempfile",
+ "walkdir",
+]
+
+[[package]]
+name = "talicode-skills"
+version = "0.0.1"
+dependencies = [
+ "rust-embed",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "talicode-agent",
+ "talicode-core",
+ "tempfile",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
