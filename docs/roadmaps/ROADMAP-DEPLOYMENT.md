@@ -1,8 +1,8 @@
-# Roadmap — Local Deployment (pre-commit hook + VS Code extension)
+# Roadmap — Local Deployment (pre-commit git hook)
 
-> Deferred design, part of the TaliCode MVP (see [../plans/MVP.md](../plans/MVP.md)). These are local developer integrations that are **designed but not yet built** — they wrap the CLI the MVP already ships (`tali sweep --staged`, `tali watch`) rather than re-implementing any detection.
+> Deferred design, part of the TaliCode MVP (see [../plans/MVP.md](../plans/MVP.md)). This is a local developer integration that is **designed but not yet built** — it wraps the CLI the MVP already ships (`tali sweep --staged`) rather than re-implementing any detection.
 
-TaliCode is an "AI Slop Gatekeeper": a compiled Rust CLI (`tali`), distributed via npm as `@talicode/core`, that detects AI-generated code problems before they reach a commit. This document covers the two local dev-tool integrations that sit on top of that CLI.
+TaliCode is an "AI Slop Gatekeeper": a compiled Rust CLI (`tali`), distributed via npm as the unscoped `talicode` package, that detects AI-generated code problems before they reach a commit. This document covers the pre-commit git hook that sits on top of that CLI. The other local, MIT-licensed integration — the **VS Code extension** — now has its own dedicated design in [./ROADMAP-VSCODE.md](./ROADMAP-VSCODE.md).
 
 ---
 
@@ -22,44 +22,9 @@ A git `pre-commit` hook that wraps `tali sweep --staged` and **gates the commit 
 
 ## VS Code extension
 
-A **thin TypeScript client over the CLI's `tali watch` mode**. The extension is a presentation layer: it launches the watcher the MVP already ships and renders its findings. It does **not** re-implement detection.
-
-### Activation
-
-- **Auto-starts on window open** via `activationEvents: ["onStartupFinished"]`. There is no command the user has to run.
-- Because each VS Code window runs its own extension host, **opening N windows monitors N folders/repos independently** — one watcher per workspace, no shared global daemon to coordinate.
-
-### On activate
-
-1. **Resolve the `tali` binary**: first the bundled npm platform package (the platform-specific optional dependency shipped alongside `@talicode/core`), then fall back to `tali` on `PATH`.
-2. **Start `tali watch`** for the active workspace folder.
-3. **Map findings to VS Code diagnostics (squiggles)** — each finding becomes a `Diagnostic` on the relevant file/range, surfaced in the editor and the Problems panel.
-4. **Quick-Fix / "Heal" action**: a `CodeAction` on each diagnostic ties into the healing flow (see [./ROADMAP-HEAL.md](./ROADMAP-HEAL.md)). The extension offers the action; the heal roadmap owns the mechanism.
-
-### Config file language support
-
-Register the custom `.tali` config extension as **YAML** so `config.tali` gets full YAML syntax highlighting and indentation behavior:
-
-```jsonc
-// package.json — contributes
-"languages": [
-  {
-    "id": "yaml",
-    "extensions": [".tali"],
-    "aliases": ["TaliCode Configuration"]
-  }
-]
-```
-
-Plus a `contributes.icons` entry providing a **file icon for `.tali`**, so the config file is recognizable in the Explorer.
-
-### Failure posture
-
-**The only user requirement is installing the extension.** Everything else degrades gracefully:
-
-- A **missing binary** (no bundled package and nothing on `PATH`) surfaces a **dismissible notice** with a hint on how to install `@talicode/core` — never a hard fail.
-- A **missing API key** likewise surfaces a dismissible notice, not a blocking error.
-- If the watcher can't start, the extension stays quietly inactive rather than throwing on window open.
+The VS Code extension — the other local, MIT-licensed integration that wraps the CLI (a thin
+presentation layer over `tali watch`, rendering findings as diagnostics with a Quick-Fix "Heal"
+action) — now has its own full, phased design in **[./ROADMAP-VSCODE.md](./ROADMAP-VSCODE.md)**.
 
 ---
 
@@ -73,15 +38,12 @@ These are local, **MIT-licensed** developer tools — free to install, inspect, 
 
 **Out of scope (for this deferred design)**
 
-- Re-implementing any detection in TypeScript or in the hook — both integrations delegate to the shipped `tali` CLI.
-- Editors other than VS Code (JetBrains, Neovim, etc.) — future work, not designed here.
+- Re-implementing any detection in the hook — it delegates to the shipped `tali` CLI.
 - CI / server-side gating — that lives with the commercial server roadmaps, not this local tooling.
 - Auto-installing the git hook without explicit opt-in.
 
 **Open questions**
 
 - Hook install UX: prefer a `tali hook install` subcommand, `core.hooksPath` wiring, or documented snippets only — and how to compose cleanly with Husky/lefthook/pre-commit already present in a repo.
-- Multi-root workspaces: one `tali watch` per workspace folder vs. one per window, and how diagnostics are attributed when folders overlap.
-- Watcher lifecycle: restart/backoff policy when `tali watch` exits unexpectedly, and how (or whether) to surface repeated crashes without being noisy.
-- Binary/version skew: how the extension should react when the resolved `tali` version differs from the extension's expected protocol.
-- Notice fatigue: how often to re-surface the dismissible missing-binary / missing-key notices before staying silent.
+
+*(VS Code extension open questions have moved to [./ROADMAP-VSCODE.md](./ROADMAP-VSCODE.md).)*

@@ -164,8 +164,9 @@ Deferred scope is documented, not hidden:
 
 - [ROADMAP-HEAL](docs/roadmaps/ROADMAP-HEAL.md) — the Surgeon agent: Heal Preview (diff + approve)
   and opt-in Auto-Heal.
-- [ROADMAP-DEPLOYMENT](docs/roadmaps/ROADMAP-DEPLOYMENT.md) — the pre-commit git hook and the VS
-  Code extension (both MIT dev tools).
+- [ROADMAP-DEPLOYMENT](docs/roadmaps/ROADMAP-DEPLOYMENT.md) — the pre-commit git hook (MIT dev tool).
+- [ROADMAP-VSCODE](docs/roadmaps/ROADMAP-VSCODE.md) — the VS Code extension (MIT): watch-mode
+  diagnostics, a Quick-Fix "Heal" action, and `config.tali` language support.
 - [ROADMAP-TALICLOUD](docs/roadmaps/ROADMAP-TALICLOUD.md) — **TaliCloud**, the managed cloud
   platform (proprietary, commercial).
 - [ROADMAP-TALIAGENTICSERVER](docs/roadmaps/ROADMAP-TALIAGENTICSERVER.md) — **TaliAgenticServer**,
