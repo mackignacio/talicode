@@ -1,0 +1,12 @@
+{
+  "name": "@talicode.ai/memory",
+  "version": "0.0.1",
+  "description": "TaliCode memory module — the five-type long-term memory (working, semantic, procedural, episodic, architectural). Reserved placeholder; the TaliCode CLI ships as the `talicode` package.",
+  "keywords": ["talicode", "memory"],
+  "homepage": "https://github.com/mackignacio/talicode#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/mackignacio/talicode.git" },
+  "license": "MIT",
+  "author": "Mac Ignacio",
+  "publishConfig": { "access": "public" },
+  "files": ["README.md"]
+}

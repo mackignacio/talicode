@@ -1,0 +1,12 @@
+{
+  "name": "@talicode.ai/core",
+  "version": "0.0.1",
+  "description": "TaliCode core module — core engine (config, git, reporting, usage, provider seam). Reserved placeholder; the TaliCode CLI ships as the `talicode` package.",
+  "keywords": ["talicode", "core"],
+  "homepage": "https://github.com/mackignacio/talicode#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/mackignacio/talicode.git" },
+  "license": "MIT",
+  "author": "Mac Ignacio",
+  "publishConfig": { "access": "public" },
+  "files": ["README.md"]
+}

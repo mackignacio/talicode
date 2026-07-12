@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: MIT
 name: Release (npm)
 
-# Cross-compile the native `tali` binary for every supported platform, stage
-# each into its npm platform package, and publish all six packages (platform
-# packages first, the `talicode` wrapper last). Triggered by pushing a v* tag.
+# Cross-compile the native `tali` binary for every supported platform, attach
+# each to the GitHub Release for the tag, then publish the single `talicode`
+# npm package (which downloads the matching binary from that Release on install).
+# Triggered by pushing a v* tag.
 #
-# Requires repo secret NPM_TOKEN — an npm automation token with publish rights.
+# Requires repo secret NPM_TOKEN — an npm token with publish rights and 2FA
+# bypass enabled. Uses the built-in GITHUB_TOKEN for the Release upload.
 
 on:
   push:
@@ -17,7 +19,7 @@ env:
 
 jobs:
   build:
-    name: build ${{ matrix.pkg }}
+    name: build ${{ matrix.asset }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -25,24 +27,24 @@ jobs:
         include:
           - target: aarch64-apple-darwin
             os: macos-14
-            pkg: talicode-darwin-arm64
-            bin: tali
+            asset: tali-darwin-arm64
+            binext: ""
           - target: x86_64-apple-darwin
             os: macos-14
-            pkg: talicode-darwin-x64
-            bin: tali
+            asset: tali-darwin-x64
+            binext: ""
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            pkg: talicode-linux-x64
-            bin: tali
+            asset: tali-linux-x64
+            binext: ""
           - target: aarch64-unknown-linux-gnu
             os: ubuntu-24.04-arm
-            pkg: talicode-linux-arm64
-            bin: tali
+            asset: tali-linux-arm64
+            binext: ""
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            pkg: talicode-win32-x64
-            bin: tali.exe
+            asset: tali-win32-x64.exe
+            binext: ".exe"
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -53,17 +55,22 @@ jobs:
           key: ${{ matrix.target }}
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }} -p talicode-cli
-      - name: Upload binary
+      - name: Rename to release asset
+        shell: bash
+        run: cp "target/${{ matrix.target }}/release/tali${{ matrix.binext }}" "${{ matrix.asset }}"
+      - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.pkg }}
-          path: target/${{ matrix.target }}/release/${{ matrix.bin }}
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
           if-no-files-found: error
 
   publish:
-    name: publish to npm
+    name: release + publish talicode
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -74,23 +81,24 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: Stage binaries into platform packages
+      - name: Flatten assets
         run: |
           set -euo pipefail
-          declare -A BIN=(
-            [talicode-darwin-arm64]=tali
-            [talicode-darwin-x64]=tali
-            [talicode-linux-x64]=tali
-            [talicode-linux-arm64]=tali
-            [talicode-win32-x64]=tali.exe
-          )
-          for pkg in "${!BIN[@]}"; do
-            bin="${BIN[$pkg]}"
-            cp "artifacts/$pkg/$bin" "npm/platform/$pkg/$bin"
-            chmod +x "npm/platform/$pkg/$bin"
-            echo "staged $bin -> npm/platform/$pkg/"
-          done
-      - name: Publish (platform packages first, wrapper last)
-        run: scripts/npm-publish.sh
+          mkdir -p assets
+          find artifacts -type f -exec cp {} assets/ \;
+          ls -la assets
+      - name: Attach binaries to the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" assets/* --clobber
+          else
+            gh release create "$TAG" assets/* --title "$TAG" --generate-notes
+          fi
+      - name: Publish talicode to npm
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

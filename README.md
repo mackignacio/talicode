@@ -159,9 +159,11 @@ Deferred scope is documented, not hidden:
 
 ## Contributing
 
-TaliCode's core is a **Rust cargo workspace** (`talicode-core` + `talicode-cli`, emitting the `tali`
-binary), packaged for **npm distribution** via a thin `talicode` wrapper and per-platform
-packages. The gate for any change is `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`,
+TaliCode's core is a **Rust cargo workspace** (`talicode-core`, `talicode-agent`, `talicode-skills`,
+`talicode-memory`, `talicode-cli`, emitting the `tali` binary), packaged for **npm distribution** as
+the unscoped `talicode` package: a thin launcher whose postinstall step downloads the matching native
+binary for the host from the versioned GitHub Release. The gate for any change is `cargo fmt --check`,
+`cargo clippy -D warnings`, `cargo test`,
 and coverage (`cargo llvm-cov`); every module ships with tests. See [docs/plans/MVP.md](docs/plans/MVP.md)
 and the phase docs for the build's structure, and [docs/TRACEABILITY.md](docs/TRACEABILITY.md) for
 the module → issue → phase map.
