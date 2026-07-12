@@ -7,6 +7,7 @@
 pub mod architecture;
 pub mod auditor;
 pub mod config;
+pub mod context;
 pub mod episode;
 pub mod git;
 pub mod host;
