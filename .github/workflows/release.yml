@@ -28,7 +28,7 @@ jobs:
             pkg: talicode-darwin-arm64
             bin: tali
           - target: x86_64-apple-darwin
-            os: macos-13
+            os: macos-14
             pkg: talicode-darwin-x64
             bin: tali
           - target: x86_64-unknown-linux-gnu
