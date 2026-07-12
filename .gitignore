@@ -9,5 +9,9 @@ node_modules/
 npm/**/tali
 npm/**/tali.exe
 
+# Secrets — never commit tokens (e.g. NPM_TOKEN)
+.env
+.env.*
+
 # OS / editor
 .DS_Store
