@@ -142,6 +142,22 @@ Memory is on by default and degrades to a no-op when empty; tune it under the `m
 `config.tali`. Heavier backends (SQLite + BM25, embeddings, a `tali search` command + Claude Code
 hook) are in [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md).
 
+## Architecture — the crates
+
+TaliCode is a Rust cargo workspace of five independently-buildable crates. The dependency graph is
+acyclic — `cli → {core, agent, skills, memory}` and `memory → skills → agent → core`:
+
+| Crate | What it does | Detailed docs |
+| --- | --- | --- |
+| [`talicode-core`](crates/talicode-core) | The foundation: config schema (`config.tali`), the staged-git reader, the findings/report types, the token-usage ledger, `watch` file-change detection, and the provider seam (Anthropic's Messages API, structured outputs). No dependency on the other crates. | [phase-1](docs/plans/phase-1-cli-config.md) · [phase-2](docs/plans/phase-2-provider-auditor.md) · [phase-4](docs/plans/phase-4-sweep-report.md) · [phase-5](docs/plans/phase-5-usage-watch.md) |
+| [`talicode-agent`](crates/talicode-agent) | The **Auditor** — builds the system prompt (role + guidance + injected memory), calls the provider, and returns schema-validated findings. | [phase-2](docs/plans/phase-2-provider-auditor.md) |
+| [`talicode-skills`](crates/talicode-skills) | The **skill host** — discovers and parses the `SKILL.md` + `rules.yaml` lenses (the 22 bundled `code-*` skills embedded via rust-embed) and composes guidance; includes the native skill search. | [phase-3](docs/plans/phase-3-skill-host.md) |
+| [`talicode-memory`](crates/talicode-memory) | The five-type **long-term memory** — working (context assembly + compression), semantic, episodic (with auto-promotion to skills), and architectural (codebase map). | [phase-8](docs/plans/phase-8-memory.md) · [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md) |
+| [`talicode-cli`](crates/talicode-cli) | The `tali` binary — argument parsing and the `init` / `sweep` / `heal` / `watch` / `skills` / `usage` / `memory` / `map` commands that wire the other crates together. | [phase-1](docs/plans/phase-1-cli-config.md) |
+
+The full module → issue → phase map is in [docs/TRACEABILITY.md](docs/TRACEABILITY.md); the overall
+design is in [docs/plans/MVP.md](docs/plans/MVP.md).
+
 ## Roadmap
 
 Deferred scope is documented, not hidden:
