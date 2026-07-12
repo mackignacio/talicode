@@ -342,6 +342,13 @@ pub fn summarize(outcome: &SweepOutcome, files: &[String]) -> Episode {
     ep
 }
 
+/// The expiry date (`YYYY-MM-DD`) for a scratch entry created today with the
+/// given TTL in hours (rounded up to whole days, minimum one).
+pub fn scratch_expiry(ttl_hours: u64) -> String {
+    let days = (ttl_hours.div_ceil(24)).max(1) as i64;
+    (chrono::Local::now().date_naive() + chrono::Duration::days(days)).to_string()
+}
+
 fn next_id(root: &Path) -> u64 {
     read(root).iter().map(|e| e.id).max().unwrap_or(0) + 1
 }
