@@ -26,10 +26,12 @@ First published release — the detect-only MVP of the AI Slop Gatekeeper.
 - **Anthropic provider seam**, auditor agent, git staged reader, reporting, and a token-usage
   ledger with daily roll-up.
 - **npm distribution** — installable as the unscoped `talicode` package; a thin `bin/tali.js`
-  launcher resolves the matching per-platform binary package
-  (`talicode-darwin-arm64`/`-x64`, `talicode-linux-x64`/`-arm64`, `talicode-win32-x64`).
-- **Release tooling** — `scripts/npm-smoke.sh` (host-only end-to-end launcher check),
-  `scripts/npm-publish.sh` (platform packages first, wrapper last), and a GitHub Actions release
-  workflow that cross-compiles all five targets on a `v*` tag and publishes to npm.
+  launcher whose postinstall step (`scripts/install.js`) downloads the matching native `tali` binary
+  for the host (darwin arm64/x64, linux x64/arm64, win32 x64) from the versioned GitHub Release.
+- **`@talicode.ai/{core,cli,agent,skill,memory}`** — reserved module packages under the org scope.
+- **Release tooling** — `scripts/npm-smoke.sh` (offline host-only launcher check),
+  `scripts/publish-modules.sh` (the reserved scope stubs), and a GitHub Actions release workflow that
+  cross-compiles all five targets on a `v*` tag, attaches them to the GitHub Release, and publishes
+  `talicode` to npm.
 
 [0.0.1]: https://github.com/mackignacio/talicode/releases/tag/v0.0.1

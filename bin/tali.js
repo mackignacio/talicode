@@ -3,35 +3,26 @@
 //
 // Implements #28. Launcher for the `tali` command shipped by the `talicode` package.
 //
-// TaliCode's core is a compiled Rust binary (the esbuild / Rolldown model): the
-// native `tali` executable is delivered inside one of several per-platform npm
-// packages, listed as optionalDependencies so npm installs only the one matching
-// the host's os + cpu. This thin launcher resolves that package's binary and
-// execs it, forwarding argv and the exit code. It owns no logic of its own.
+// TaliCode's core is a compiled Rust binary. The postinstall step
+// (scripts/install.js) downloads the matching native `tali` for this host from
+// the versioned GitHub Release and stores it as `bin/tali-native[.exe]`. This
+// launcher resolves that binary and execs it, forwarding argv and the exit
+// code. It owns no logic of its own.
 
 "use strict";
 
+const path = require("node:path");
+const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
-
-// Map `${process.platform} ${process.arch}` to the platform package that ships
-// the matching native binary. Keep in lockstep with the wrapper's
-// optionalDependencies and the npm/platform/* packages.
-const PLATFORM_PACKAGES = {
-  "darwin arm64": "talicode-darwin-arm64",
-  "darwin x64": "talicode-darwin-x64",
-  "linux x64": "talicode-linux-x64",
-  "linux arm64": "talicode-linux-arm64",
-  "win32 x64": "talicode-win32-x64",
-};
-
-/** The platform package name for a given platform/arch, or undefined. */
-function resolvePackage(platform, arch) {
-  return PLATFORM_PACKAGES[`${platform} ${arch}`];
-}
 
 /** The native binary's file name for a platform (`.exe` on Windows). */
 function binaryName(platform) {
-  return platform === "win32" ? "tali.exe" : "tali";
+  return platform === "win32" ? "tali-native.exe" : "tali-native";
+}
+
+/** Absolute path to the downloaded native binary for this host. */
+function binaryPath() {
+  return path.join(__dirname, binaryName(process.platform));
 }
 
 function fail(message) {
@@ -39,35 +30,16 @@ function fail(message) {
   process.exit(1);
 }
 
-/**
- * Resolve the absolute path to the native `tali` binary for the current host,
- * or exit with a clear message when the platform is unsupported or the
- * matching platform package was not installed.
- */
-function binaryPath() {
-  const pkg = resolvePackage(process.platform, process.arch);
-  if (!pkg) {
-    const supported = Object.keys(PLATFORM_PACKAGES).join(", ");
+function main() {
+  const bin = binaryPath();
+  if (!fs.existsSync(bin)) {
     fail(
-      `TaliCode: unsupported platform "${process.platform} ${process.arch}". ` +
-        `Supported: ${supported}.`
-    );
-  }
-  try {
-    return require.resolve(`${pkg}/${binaryName(process.platform)}`);
-  } catch {
-    fail(
-      `TaliCode: the platform package "${pkg}" is not installed.\n` +
-        `It should install automatically as an optional dependency of talicode.\n` +
+      `TaliCode: the native binary was not found at ${bin}.\n` +
+        `The postinstall download may have been skipped or failed.\n` +
         `Try reinstalling: npm install -g talicode`
     );
   }
-}
-
-function main() {
-  const result = spawnSync(binaryPath(), process.argv.slice(2), {
-    stdio: "inherit",
-  });
+  const result = spawnSync(bin, process.argv.slice(2), { stdio: "inherit" });
   if (result.error) {
     fail(`TaliCode: failed to launch the native binary: ${result.error.message}`);
   }
@@ -80,4 +52,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { PLATFORM_PACKAGES, resolvePackage, binaryName };
+module.exports = { binaryName, binaryPath };

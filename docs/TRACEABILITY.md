@@ -18,7 +18,7 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | 3 — Skill host | [phase-3-skill-host.md](plans/phase-3-skill-host.md) | #11 skill · #12 discover · #13 invoke · #14–#19 the 22 bundled skills |
 | 4 — Sweep & report | [phase-4-sweep-report.md](plans/phase-4-sweep-report.md) | #20 git · #21 report · #22 sweep · #23 heal |
 | 5 — Usage & watch | [phase-5-usage-watch.md](plans/phase-5-usage-watch.md) | #24 usage ledger · #25 usage cmd · #26 watch · #27 skills cmd |
-| 6 — npm distribution | [phase-6-npm-dist.md](plans/phase-6-npm-dist.md) | #28 wrapper + launcher · #29 platform packages + smoke |
+| 6 — npm distribution | [phase-6-npm-dist.md](plans/phase-6-npm-dist.md) | #28 launcher + postinstall downloader · #29 release workflow + smoke + scope stubs |
 | 7 — Docs & license | [phase-7-docs-license.md](plans/phase-7-docs-license.md) | #30 roadmaps · #31 README · #32 this matrix |
 | Post-3 — Enrichment | (global-skills single source) | #40 enrich the 22 bundled skills to rich guidance |
 | 8 — Long-term memory | [phase-8-memory.md](plans/phase-8-memory.md) | #44 semantic · #45 episodic · #46 auto-promotion · #47 procedural search · #48 architecture · #49 working · #50 config · #51 wiring · #52 commands · #53 init · #54 docs |
@@ -68,8 +68,8 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `Cargo.toml` (workspace) | #2 | 0 | Architecture |
 | `rust-toolchain.toml`, `.gitignore`, `LICENSE` | #3 | 0 | Licensing / scaffold |
 | `.github/workflows/ci.yml` | #4 | 0 | Verification — the gate |
-| `npm/core/**` (wrapper + `bin/tali.js`) | #28 | 6 | npm distribution |
-| `npm/platform/**`, `scripts/npm-smoke.sh` | #29 | 6 | npm distribution |
+| `package.json`, `bin/tali.js`, `scripts/install.js` (launcher + postinstall downloader) | #28 | 6 | npm distribution |
+| `.github/workflows/release.yml`, `scripts/npm-smoke.sh`, `npm/modules/**` (`@talicode.ai/*` stubs), `scripts/publish-modules.sh` | #29 | 6 | npm distribution |
 | `docs/roadmaps/*.md` | #30 | 7 | Roadmap docs |
 | `README.md` | #31 | 7 | README updates |
 | `docs/TRACEABILITY.md` | #32 | 7 | Execution methodology |

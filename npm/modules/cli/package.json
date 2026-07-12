@@ -1,0 +1,12 @@
+{
+  "name": "@talicode.ai/cli",
+  "version": "0.0.1",
+  "description": "TaliCode cli module — the `tali` command-line interface. Reserved placeholder; the TaliCode CLI ships as the `talicode` package.",
+  "keywords": ["talicode", "cli"],
+  "homepage": "https://github.com/mackignacio/talicode#readme",
+  "repository": { "type": "git", "url": "git+https://github.com/mackignacio/talicode.git" },
+  "license": "MIT",
+  "author": "Mac Ignacio",
+  "publishConfig": { "access": "public" },
+  "files": ["README.md"]
+}
