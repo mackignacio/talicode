@@ -9,10 +9,10 @@
 use anyhow::{anyhow, Context};
 use clap::{Args as ClapArgs, Subcommand};
 use talicode_core::config::{Config, MemoryConfig};
-use talicode_core::episode::{self, Episode, MemoryType};
-use talicode_core::host::discover::Catalog;
-use talicode_core::memory::{self, Memory, Tier};
 use talicode_core::usage;
+use talicode_memory::episode::{self, Episode, MemoryType};
+use talicode_memory::memory::{self, Memory, Tier};
+use talicode_skills::host::discover::Catalog;
 
 #[derive(ClapArgs, Debug)]
 pub struct Args {
