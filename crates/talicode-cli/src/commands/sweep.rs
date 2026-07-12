@@ -11,8 +11,9 @@ use clap::Args as ClapArgs;
 use std::path::Path;
 use talicode_core::config::{Agent, Config, MemoryConfig};
 use talicode_core::git::{self, SkipReason};
-use talicode_core::host::{discover::Catalog, invoke};
-use talicode_core::{architecture, context, episode, memory, provider, report, usage};
+use talicode_core::{provider, report, usage};
+use talicode_memory::{architecture, context, episode, memory};
+use talicode_skills::host::{discover::Catalog, invoke};
 
 /// Default target glob when the config's first step declares none.
 const DEFAULT_TARGET: &str = "./**/*.rs";
