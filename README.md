@@ -164,6 +164,9 @@ Deferred scope is documented, not hidden:
 
 - [ROADMAP-HEAL](docs/roadmaps/ROADMAP-HEAL.md) — the Surgeon agent: Heal Preview (diff + approve)
   and opt-in Auto-Heal.
+- [ROADMAP-TEST](docs/roadmaps/ROADMAP-TEST.md) — **TaliCode Test**: universal test orchestration via
+  pluggable per-stack adapters (Python, TypeScript, Go, mobile, Terraform, …) that run the project's
+  native suites, gate on the result, and later generate tests.
 - [ROADMAP-DEPLOYMENT](docs/roadmaps/ROADMAP-DEPLOYMENT.md) — the pre-commit git hook (MIT dev tool).
 - [ROADMAP-VSCODE](docs/roadmaps/ROADMAP-VSCODE.md) — the VS Code extension (MIT): watch-mode
   diagnostics, a Quick-Fix "Heal" action, an in-editor chat agent, a settings + token-usage panel
