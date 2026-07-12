@@ -21,6 +21,7 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | 6 — npm distribution | [phase-6-npm-dist.md](plans/phase-6-npm-dist.md) | #28 wrapper + launcher · #29 platform packages + smoke |
 | 7 — Docs & license | [phase-7-docs-license.md](plans/phase-7-docs-license.md) | #30 roadmaps · #31 README · #32 this matrix |
 | Post-3 — Enrichment | (global-skills single source) | #40 enrich the 22 bundled skills to rich guidance |
+| 8 — Long-term memory | [phase-8-memory.md](plans/phase-8-memory.md) | #44 semantic · #45 episodic · #46 auto-promotion · #47 procedural search · #48 architecture · #49 working · #50 config · #51 wiring · #52 commands · #53 init · #54 docs |
 
 ## Modules → issue → phase → MVP section
 
@@ -48,6 +49,17 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `crates/talicode-core/src/watch.rs` | #26 | 5 | Watch mode |
 | `crates/talicode-cli/src/commands/watch.rs` | #26 | 5 | Commands — `watch` |
 | `crates/talicode-cli/src/commands/skills.rs` | #27 | 5 | Commands — `skills` |
+| `crates/talicode-core/src/memory.rs` | #44 | 8 | Semantic memory |
+| `crates/talicode-core/src/episode.rs` | #45, #46 | 8 | Episodic memory + auto-promotion |
+| `crates/talicode-core/src/host/retrieve.rs` | #47 | 8 | Procedural memory (skill search) |
+| `crates/talicode-core/src/architecture.rs` | #48 | 8 | Architectural memory |
+| `crates/talicode-core/src/context.rs` | #49 | 8 | Working memory (assemble/compress/chain) |
+| `crates/talicode-core/src/config.rs` (`MemoryConfig`) | #50 | 8 | Config — `memory:` |
+| `crates/talicode-core/src/auditor.rs` (memory wiring) | #51 | 8 | Auditor memory injection |
+| `crates/talicode-core/src/host/invoke.rs` (`InvokeOptions`) | #51 | 8 | Memory + retrieval wiring |
+| `crates/talicode-cli/src/commands/sweep.rs` (memory context) | #51 | 8 | Sweep memory assembly |
+| `crates/talicode-cli/src/commands/memory.rs` | #52 | 8 | Commands — `memory` |
+| `crates/talicode-cli/src/commands/map.rs` | #52 | 8 | Commands — `map` |
 
 ## Non-code artifacts → issue → phase
 
@@ -61,6 +73,8 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `docs/roadmaps/*.md` | #30 | 7 | Roadmap docs |
 | `README.md` | #31 | 7 | README updates |
 | `docs/TRACEABILITY.md` | #32 | 7 | Execution methodology |
+| `docs/plans/phase-8-memory.md` | #44–#54 | 8 | Phase 8 plan |
+| `docs/roadmaps/ROADMAP-MEMORY.md` | #54 | 8 | Memory roadmap |
 
 ## How to keep this current
 

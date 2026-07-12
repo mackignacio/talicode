@@ -28,6 +28,9 @@ pub struct AuditRequest {
     /// Composed skill guidance (the lenses' `SKILL.md` bodies + rules). Filled
     /// by the skill host in phase 3; may be empty for a bare audit.
     pub guidance: String,
+    /// Assembled long-term memory context (semantic + episodic + architecture).
+    /// Filled by the sweep in phase 8; empty ⇒ nothing injected.
+    pub memory: String,
 }
 
 /// The result of auditing one file.
@@ -48,7 +51,7 @@ pub async fn audit(
         .complete(CompletionRequest {
             model: request.model.clone(),
             effort: request.effort.clone(),
-            system: system_prompt(&request.role, &request.guidance),
+            system: system_prompt(&request.role, &request.guidance, &request.memory),
             user: user_prompt(&request.file, &request.content),
             tool: ToolSpec {
                 name: "report_findings".into(),
@@ -109,7 +112,7 @@ fn findings_schema() -> Value {
     })
 }
 
-fn system_prompt(role: &str, guidance: &str) -> String {
+fn system_prompt(role: &str, guidance: &str, memory: &str) -> String {
     let mut s = String::from(
         "You are TaliCode's Auditor. Review the file and report only concrete, \
          line-anchored violations. Prefer silence over speculation — do not invent \
@@ -119,6 +122,10 @@ fn system_prompt(role: &str, guidance: &str) -> String {
     if !role.trim().is_empty() {
         s.push_str("\n\nRole: ");
         s.push_str(role.trim());
+    }
+    if !memory.trim().is_empty() {
+        s.push_str("\n\nLong-term memory (project context — judge accordingly):\n");
+        s.push_str(memory.trim());
     }
     if !guidance.trim().is_empty() {
         s.push_str("\n\nGuidance (rules to apply):\n");
@@ -155,7 +162,18 @@ mod tests {
             effort: "medium".into(),
             role: "Find slop".into(),
             guidance: "code-no-keys: no hardcoded secrets".into(),
+            memory: String::new(),
         }
+    }
+
+    #[test]
+    fn system_prompt_injects_memory_when_present() {
+        let with = system_prompt("r", "g", "Project memory:\n- uses raw SQL");
+        assert!(with.contains("Long-term memory"));
+        assert!(with.contains("uses raw SQL"));
+        // Empty memory ⇒ no memory section.
+        let without = system_prompt("r", "g", "");
+        assert!(!without.contains("Long-term memory"));
     }
 
     #[tokio::test]

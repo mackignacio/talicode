@@ -98,6 +98,8 @@ trips — so the same exit code drives the future pre-commit hook.
 | `tali watch [--json]` | Monitor the current folder/repo and re-sweep on save (debounced). |
 | `tali skills [--all]` | List your repo's authored skills; `--all` includes the bundled `code-*` defaults. |
 | `tali usage [--json]` | Show token spend: today's total + recent daily history. |
+| `tali memory …` | Manage long-term memory — semantic `add`/`list`/`search`/`forget`; episodic `remember`/`recall`/`timeline`/`supersede`/`prune`. |
+| `tali map [--rebuild]` | Build/refresh and show the codebase architectural map. |
 
 ## How it works
 
@@ -121,6 +123,25 @@ strings/numbers, traceability, and more) and renders one verdict. The strict DO-
 `code-aviation` profile is opt-in. Drop a folder in `skills/` to add or override a lens — no
 recompile; `tali skills` shows it immediately.
 
+### Long-term memory
+
+So the gatekeeper doesn't start cold, TaliCode carries a native, five-type memory injected into the
+Auditor's context:
+
+- **Working** — the per-turn context assembler + a 250K-soft / 500K-hard conversation budget that
+  compresses into episodic memory when the coding LLM finishes.
+- **Semantic** — durable project facts (`tali memory add`) as committed markdown under
+  `.talicode/memory/`.
+- **Procedural** — the skills, retrieved by a native search so only relevant lenses enter the prompt
+  (no resident index), with an always-run security floor.
+- **Episodic** — a searchable long-term store of learnings / mistakes / experiences (`tali memory
+  remember`); a recurring experience **auto-promotes into a skill**.
+- **Architectural** — a codebase map (`tali map`) whose overview is injected instead of re-grepping.
+
+Memory is on by default and degrades to a no-op when empty; tune it under the `memory:` block in
+`config.tali`. Heavier backends (SQLite + BM25, embeddings, a `tali search` command + Claude Code
+hook) are in [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md).
+
 ## Roadmap
 
 Deferred scope is documented, not hidden:
@@ -133,6 +154,8 @@ Deferred scope is documented, not hidden:
   platform (proprietary, commercial).
 - [ROADMAP-TALIAGENTICSERVER](docs/roadmaps/ROADMAP-TALIAGENTICSERVER.md) — **TaliAgenticServer**,
   the always-on webhook / agentic daemon (proprietary, commercial).
+- [ROADMAP-MEMORY](docs/roadmaps/ROADMAP-MEMORY.md) — the deferred memory upgrades: SQLite + BM25 +
+  embeddings, the `tali search` codebase-search command, and the Claude Code hook.
 
 ## Contributing
 

@@ -6,6 +6,8 @@
 
 pub mod heal;
 pub mod init;
+pub mod map;
+pub mod memory;
 pub mod skills;
 pub mod sweep;
 pub mod usage;

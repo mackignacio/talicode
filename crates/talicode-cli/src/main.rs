@@ -36,6 +36,10 @@ enum Command {
     Usage(commands::usage::Args),
     /// Monitor the current folder/repo and sweep on change.
     Watch(commands::watch::Args),
+    /// Manage long-term memory (semantic facts + episodic experiences).
+    Memory(commands::memory::Args),
+    /// Build/refresh and show the codebase architectural map.
+    Map(commands::map::Args),
 }
 
 #[tokio::main]
@@ -47,6 +51,8 @@ async fn main() -> anyhow::Result<()> {
         Command::Skills(args) => commands::skills::run(args),
         Command::Usage(args) => commands::usage::run(args),
         Command::Watch(args) => commands::watch::run(args).await,
+        Command::Memory(args) => commands::memory::run(args),
+        Command::Map(args) => commands::map::run(args),
     }
 }
 
