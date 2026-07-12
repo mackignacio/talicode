@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "talicode-test"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "TaliCode Test — universal test orchestration (adapter detection + quality-gate model)."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+talicode-core = { path = "../talicode-core" }
