@@ -8,13 +8,13 @@
 //! pure keyword+recency rank; `build_context` groups reuse/avoid/last-time for
 //! injection. A SQLite + BM25 + embedding backend is roadmap.
 
-use crate::host::invoke::SweepOutcome;
 use crate::memory::Tier;
-use crate::report::Severity;
-use crate::usage::local_today;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use talicode_core::report::Severity;
+use talicode_core::usage::local_today;
+use talicode_skills::host::invoke::SweepOutcome;
 
 /// Repo-local dir holding the episodic ledger (git-ignored).
 pub const EPISODE_DIR: &str = ".talicode";
@@ -660,7 +660,7 @@ mod tests {
 
     #[test]
     fn summarize_counts_severities_and_top_rules() {
-        use crate::report::Finding;
+        use talicode_core::report::Finding;
         let outcome = SweepOutcome {
             findings: vec![
                 Finding {
@@ -762,7 +762,7 @@ mod tests {
         promote(dir.path(), &draft).unwrap();
         let skill_dir = dir.path().join("skills/no-while-loops");
         assert!(skill_dir.join("SKILL.md").is_file());
-        let s = crate::host::skill::Skill::load(&skill_dir).unwrap();
+        let s = talicode_skills::host::skill::Skill::load(&skill_dir).unwrap();
         assert_eq!(s.name, "no-while-loops");
         assert!(!s.is_orchestrator());
     }
