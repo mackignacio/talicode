@@ -47,17 +47,53 @@ One iteration, six phases:
 ## The inner loop (agentic tool use) — the core upgrade
 
 Today the Auditor makes **one** structured-output call. The agent loop replaces that single call with
-a **tool-enabled loop**, which is what actually turns a request/response into an *agent*:
+a **tool-enabled loop**, which is what actually turns a request/response into an *agent*. The tools
+fall into two layers:
 
-- **Tools the agent can call:** `changed_files`, `read_file`, `lookup_architecture` (query the map
-  instead of grepping the tree), `recall_memory`, `run_skill` / audit a file against a lens,
-  `run_test` (a [TaliCode Test](./ROADMAP-TEST.md) adapter), and `propose_heal` (produce a diff).
+**Internal tools** — TaliCode's own capabilities:
+`changed_files`, `read_file`, `lookup_architecture` (query the map instead of grepping the tree),
+`recall_memory`, `run_skill` / audit a file against a lens, `run_test` (a
+[TaliCode Test](./ROADMAP-TEST.md) adapter), and `propose_heal` (produce a diff).
+
+**External integration tools** — the toolchain a real CTO actually drives (see below).
+
 - **Cycle:** model → `tool_use` request → host executes the tool → `tool_result` → repeat until the
   model emits its findings/verdict. Tools are deterministic where possible (git, the arch map, test
   runners) so the loop is reproducible.
 - **Prerequisite:** the tool-use/agentic SDK upgrade — the same one the Surgeon needs; it is tracked
   in [ROADMAP-HEAL](./ROADMAP-HEAL.md). Nothing mutates silently: heals and generated tests go
   through the Heal diff + approve flow.
+
+### External integrations (the CTO's toolchain)
+
+A background CTO is only useful if it can *act on the tools the team already uses*. The loop's Act
+phase can call **external, side-effecting tools** through a pluggable **connector** layer
+(MCP-compatible, so existing MCP servers plug straight in):
+
+- **Version control — git**: `status` / `diff` / `log` / `blame` (read), and `branch` / `commit`
+  (write) for the healing and staging flows.
+- **GitHub / GitLab**: read PRs, checks, and issues; **open/update a PR**, post review comments on
+  findings, set a commit status/check (the background-mode "verdict" surface).
+- **Atlassian**: read/comment/transition **Jira** issues (e.g. link a finding to a ticket, move a
+  ticket on a passing gate) and read/write **Confluence** pages (e.g. keep an architecture page in
+  sync with the [architectural map](./ROADMAP-MEMORY.md)).
+- **Infrastructure — Terraform** (and IaC generally): `validate` / `plan` as read-only checks feeding
+  the gate; `apply` is a guarded, approval-gated action, never autonomous.
+- **CI/CD, cloud, chat**: trigger/read pipeline runs, read cloud state for context, post to Slack/
+  Teams — added as connectors, not core changes.
+
+**Permission posture (Zero-Trust).** Every connector declares which tools are **read-only** vs.
+**side-effecting**. Read-only calls (git status, Jira read, `terraform plan`, CI status) run freely
+inside the loop; **side-effecting** calls (push, `apply`, open PR, comment, transition a ticket)
+require an explicit **allow-policy** in `config.tali` and, by default, **human approval** — the same
+diff + approve gate as healing. Credentials are supplied by the host/connector, never embedded in a
+prompt. An always-on server ([TaliAgenticServer](./ROADMAP-TALIAGENTICSERVER.md)) can pre-authorize a
+scoped subset for autonomous operation.
+
+The connector registry is extensible the way skills and test adapters are: a new integration is a new
+connector (ideally a stock MCP server), configured and permissioned in `config.tali` — no core
+change. This is what lets TaliCode close the loop end-to-end — *detect a problem → open the Jira
+ticket → propose the fix → run the tests → open the PR* — instead of only reporting.
 
 ## Triggers & modes
 
@@ -113,3 +149,5 @@ heal action), [ROADMAP-TEST](./ROADMAP-TEST.md) (test actions in the Act phase),
   is open.
 - **Always-on economics** — scheduling/backoff and per-period cost caps for the autonomous server
   mode.
+- **Connector trust** — vetting third-party/MCP connectors, sandboxing their execution, scoping their
+  credentials, and the default deny-list for side-effecting tools until a human opts in.
