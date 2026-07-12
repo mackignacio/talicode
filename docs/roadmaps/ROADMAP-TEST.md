@@ -13,6 +13,24 @@ languages. **TaliCode Test detects the stack and drives its native test suite**,
 result into TaliCode's findings/report model, and gates the commit on it — one command, one verdict,
 across the whole polyglot repo.
 
+## Delivered via the `tali` CLI
+
+TaliCode Test is **not a separate binary or product** — it ships inside the existing `tali` CLI as a
+first-class subcommand, exactly like `sweep`, `watch`, and `map`:
+
+```
+tali test [--changed | --all] [--adapter <name>] [--list] [--json]
+```
+
+- `--changed` (default) runs only the adapters relevant to the changed files; `--all` runs every
+  detected suite.
+- `--adapter <name>` restricts to one adapter; `--list` shows the detected/available adapters.
+- `--json` emits the normalized findings; the exit code follows the same gate contract as `tali
+  sweep`, so `tali test` slots straight into the pre-commit hook and CI.
+
+Implementation-wise it lives in the same Rust workspace as the rest of the CLI (a `talicode-test`
+crate alongside `talicode-core`/`agent`/`skills`/`memory`, wired into `talicode-cli`).
+
 ## Principles
 
 - **Delegate, never reinvent.** TaliCode Test does not implement a test framework. It detects and

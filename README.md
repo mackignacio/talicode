@@ -101,6 +101,10 @@ trips — so the same exit code drives the future pre-commit hook.
 | `tali memory …`                                   | Manage long-term memory — semantic `add`/`list`/`search`/`forget`; episodic `remember`/`recall`/`timeline`/`supersede`/`prune`. |
 | `tali map [--rebuild]`                            | Build/refresh and show the codebase architectural map.                                                                          |
 
+_Planned:_ `tali test` — run the project's native test suites (Python, TypeScript, Go, mobile,
+Terraform, …) and gate on the result, as a first-class subcommand of this same CLI. See
+[ROADMAP-TEST](docs/roadmaps/ROADMAP-TEST.md).
+
 ## How it works
 
 TaliCode plays the role a Claude Code session would: its **skill host** loads a `SKILL.md`
