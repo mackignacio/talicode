@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 //
-// Implements #28. Launcher for the `tali` command shipped by @talicode.ai/core.
+// Implements #28. Launcher for the `tali` command shipped by the `talicode` package.
 //
 // TaliCode's core is a compiled Rust binary (the esbuild / Rolldown model): the
 // native `tali` executable is delivered inside one of several per-platform npm
@@ -58,8 +58,8 @@ function binaryPath() {
   } catch {
     fail(
       `TaliCode: the platform package "${pkg}" is not installed.\n` +
-        `It should install automatically as an optional dependency of @talicode.ai/core.\n` +
-        `Try reinstalling: npm install -g @talicode.ai/core`
+        `It should install automatically as an optional dependency of talicode.\n` +
+        `Try reinstalling: npm install -g talicode`
     );
   }
 }
