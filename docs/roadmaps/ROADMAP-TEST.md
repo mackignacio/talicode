@@ -13,6 +13,24 @@ languages. **TaliCode Test detects the stack and drives its native test suite**,
 result into TaliCode's findings/report model, and gates the commit on it — one command, one verdict,
 across the whole polyglot repo.
 
+## Delivered via the `tali` CLI
+
+TaliCode Test is **not a separate binary or product** — it ships inside the existing `tali` CLI as a
+first-class subcommand, exactly like `sweep`, `watch`, and `map`:
+
+```
+tali test [--changed | --all] [--adapter <name>] [--list] [--json]
+```
+
+- `--changed` (default) runs only the adapters relevant to the changed files; `--all` runs every
+  detected suite.
+- `--adapter <name>` restricts to one adapter; `--list` shows the detected/available adapters.
+- `--json` emits the normalized findings; the exit code follows the same gate contract as `tali
+  sweep`, so `tali test` slots straight into the pre-commit hook and CI.
+
+Implementation-wise it lives in the same Rust workspace as the rest of the CLI (a `talicode-test`
+crate alongside `talicode-core`/`agent`/`skills`/`memory`, wired into `talicode-cli`).
+
 ## Principles
 
 - **Delegate, never reinvent.** TaliCode Test does not implement a test framework. It detects and
@@ -66,12 +84,26 @@ lint-clean + a perfect pylint score + passing tests** — the same bar TaliCode 
 The step commands and thresholds (e.g. the pylint floor) are overridable in the `test:` block of
 `config.tali`, so a project can relax or tighten them.
 
-## Stack detection
+## Stack detection — automatic, from the code
 
-TaliCode Test reuses the **architectural memory** map plus file signatures to pick which adapters
-apply to the *changed* files — so in a monorepo, `tali test` runs only the suites relevant to what
-changed (the Python service's pytest, the web app's Vitest, the `infra/` Terraform checks) rather
-than everything.
+**The user never picks a test type; TaliCode figures it out from the file itself.** Each changed file
+is classified and routed to the matching adapter automatically, using layered signals (cheapest
+first):
+
+1. **Extension** — `.py` → Python, `.ts`/`.tsx` → TypeScript, `.go` → Go, `.rs` → Rust, `.tf` →
+   Terraform, `.swift` → iOS, `.kt` → Android/Kotlin, `.dart` → Flutter, and so on.
+2. **Content signatures** — shebangs, imports, and framework markers disambiguate when the extension
+   isn't enough: `import pytest` vs. `unittest`, `from playwright` vs. a Vitest `describe`, a React
+   component vs. a plain TS module, `provider "aws"` in HCL.
+3. **Project manifests + architectural map** — `pyproject.toml`, `package.json` test scripts,
+   `go.mod`, `Cargo.toml`, `build.gradle`, `pubspec.yaml`, resolved against the
+   [architectural memory](./ROADMAP-MEMORY.md) map to know which module/suite a file belongs to.
+
+Detection is the adapter's own `detect` step, so it stays extensible — a new adapter teaches TaliCode
+a new signature set, no core change. In a monorepo this means a single `tali test` run
+auto-dispatches only the relevant suites for what changed: the Python service's pytest, the web app's
+Vitest, the `infra/` Terraform checks — each file to its right runner, with no manual selection. An
+explicit `--adapter <name>` override is available for the rare case detection guesses wrong.
 
 ## Phased plan
 
