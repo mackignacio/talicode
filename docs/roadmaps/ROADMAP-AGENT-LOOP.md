@@ -50,12 +50,32 @@ Today the Auditor makes **one** structured-output call. The agent loop replaces 
 a **tool-enabled loop**, which is what actually turns a request/response into an *agent*. The tools
 fall into two layers:
 
-**Internal tools** — TaliCode's own capabilities:
-`changed_files`, `read_file`, `lookup_architecture` (query the map instead of grepping the tree),
-`recall_memory`, `run_skill` / audit a file against a lens, `run_test` (a
-[TaliCode Test](./ROADMAP-TEST.md) adapter), and `propose_heal` (produce a diff).
+**Internal tools** — TaliCode's first-class action verbs. Curated and stable; several are ergonomic
+wrappers over the external connectors below (so a common action is one call), and the catalog grows
+over time. The current set:
 
-**External integration tools** — the toolchain a real CTO actually drives (see below).
+- *Inspect* — `changed_files`, `read_file`, `lookup_architecture` (query the map instead of grepping),
+  `recall_memory`.
+- *Filesystem* — `make_dir`, `file_create`, `file_move`.
+- *Review & fix* — `run_skill` (audit a file against a lens), `run_test` (a
+  [TaliCode Test](./ROADMAP-TEST.md) adapter), `propose_heal` (produce a diff).
+- *Version control* — `branch_create`, `branch_list`, `branch_rebase`, `branch_clean_up`,
+  `branch_delete`, `atomic_commit`.
+- *Pull requests* — `pr_create`, `pr_review`, `pr_resolve_comments`.
+- *Planning* — `plan_create`, `plan_phase_create`.
+- *Multi-agent orchestration* — `agent_spawn`, `agent_work_claims`, `agent_report`.
+- *Issue tracking (Jira)* — `jira_epic`, `jira_story`, `jira_story_status`, `jira_story_move`.
+- *Infrastructure (Terraform)* — `tf_import`, `tf_validate`, `tf_checks`, `tf_plan`, `tf_apply`.
+- *Escape hatch* — `run_external_tool`, to invoke any configured connector not exposed as a
+  first-class verb.
+
+*(The list is intentionally open — more verbs are added as the loop grows.)* Side-effecting verbs
+(writes to disk, git, PRs, Jira, `tf_apply`, spawning agents, …) obey the same **Zero-Trust approval
+policy** as the connectors below: read-only verbs run freely inside the loop; mutations need a
+`config.tali` allow-policy and, by default, human approval.
+
+**External integration tools** — the connector layer these verbs and `run_external_tool` drive
+(see below).
 
 - **Cycle:** model → `tool_use` request → host executes the tool → `tool_result` → repeat until the
   model emits its findings/verdict. Tools are deterministic where possible (git, the arch map, test
