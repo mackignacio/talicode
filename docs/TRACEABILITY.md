@@ -60,6 +60,7 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `crates/talicode-cli/src/commands/sweep.rs` (memory context) | #51 | 8 | Sweep memory assembly |
 | `crates/talicode-cli/src/commands/memory.rs` | #52 | 8 | Commands — `memory` |
 | `crates/talicode-cli/src/commands/map.rs` | #52 | 8 | Commands — `map` |
+| `crates/talicode-test/src/lib.rs` | [ROADMAP-TEST](roadmaps/ROADMAP-TEST.md) | — | TaliCode Test (adapter detection + gate model; skeleton) |
 
 ## Non-code artifacts → issue → phase
 

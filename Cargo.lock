@@ -1527,6 +1527,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "talicode-test"
+version = "0.0.1"
+dependencies = [
+ "serde",
+ "talicode-core",
+]
+
+[[package]]
 name = "tempfile"
 version = "3.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
