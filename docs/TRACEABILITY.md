@@ -34,12 +34,12 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `crates/talicode-cli/src/commands/init.rs` | #7 | 1 | Commands — `init` |
 | `crates/talicode-core/src/provider/mod.rs` | #8 | 2 | Provider seam |
 | `crates/talicode-core/src/provider/anthropic.rs` | #9 | 2 | Provider seam — anthropic |
-| `crates/talicode-core/src/auditor.rs` | #10 | 2 | Auditor agent |
-| `crates/talicode-core/src/host/mod.rs` | #11 | 3 | Skill host — module root |
-| `crates/talicode-core/src/host/skill.rs` | #11 | 3 | Skill host — skill model/parser |
-| `crates/talicode-core/src/host/discover.rs` | #12 | 3 | Skill host — discovery (rust-embed) |
-| `crates/talicode-core/src/host/invoke.rs` | #13 | 3 | Skill host — orchestrator expansion |
-| `crates/talicode-core/assets/skills/**` (22) | #14–#19, #40 | 3 | Default skills (authored + enriched) |
+| `crates/talicode-agent/src/auditor.rs` | #10 | 2 | Auditor agent |
+| `crates/talicode-skills/src/host/mod.rs` | #11 | 3 | Skill host — module root |
+| `crates/talicode-skills/src/host/skill.rs` | #11 | 3 | Skill host — skill model/parser |
+| `crates/talicode-skills/src/host/discover.rs` | #12 | 3 | Skill host — discovery (rust-embed) |
+| `crates/talicode-skills/src/host/invoke.rs` | #13 | 3 | Skill host — orchestrator expansion |
+| `crates/talicode-skills/assets/skills/**` (22) | #14–#19, #40 | 3 | Default skills (authored + enriched) |
 | `crates/talicode-core/src/git.rs` | #20 | 4 | Git staged reader |
 | `crates/talicode-core/src/report.rs` | #21 (types from #10) | 4 | Reporting |
 | `crates/talicode-cli/src/commands/sweep.rs` | #22 | 4 | Commands — `sweep` |
@@ -49,14 +49,14 @@ its implementing issue, phase, and MVP section. Keep it current as issues land.
 | `crates/talicode-core/src/watch.rs` | #26 | 5 | Watch mode |
 | `crates/talicode-cli/src/commands/watch.rs` | #26 | 5 | Commands — `watch` |
 | `crates/talicode-cli/src/commands/skills.rs` | #27 | 5 | Commands — `skills` |
-| `crates/talicode-core/src/memory.rs` | #44 | 8 | Semantic memory |
-| `crates/talicode-core/src/episode.rs` | #45, #46 | 8 | Episodic memory + auto-promotion |
-| `crates/talicode-core/src/host/retrieve.rs` | #47 | 8 | Procedural memory (skill search) |
-| `crates/talicode-core/src/architecture.rs` | #48 | 8 | Architectural memory |
-| `crates/talicode-core/src/context.rs` | #49 | 8 | Working memory (assemble/compress/chain) |
+| `crates/talicode-memory/src/memory.rs` | #44 | 8 | Semantic memory |
+| `crates/talicode-memory/src/episode.rs` | #45, #46 | 8 | Episodic memory + auto-promotion |
+| `crates/talicode-skills/src/host/retrieve.rs` | #47 | 8 | Procedural memory (skill search) |
+| `crates/talicode-memory/src/architecture.rs` | #48 | 8 | Architectural memory |
+| `crates/talicode-memory/src/context.rs` | #49 | 8 | Working memory (assemble/compress/chain) |
 | `crates/talicode-core/src/config.rs` (`MemoryConfig`) | #50 | 8 | Config — `memory:` |
-| `crates/talicode-core/src/auditor.rs` (memory wiring) | #51 | 8 | Auditor memory injection |
-| `crates/talicode-core/src/host/invoke.rs` (`InvokeOptions`) | #51 | 8 | Memory + retrieval wiring |
+| `crates/talicode-agent/src/auditor.rs` (memory wiring) | #51 | 8 | Auditor memory injection |
+| `crates/talicode-skills/src/host/invoke.rs` (`InvokeOptions`) | #51 | 8 | Memory + retrieval wiring |
 | `crates/talicode-cli/src/commands/sweep.rs` (memory context) | #51 | 8 | Sweep memory assembly |
 | `crates/talicode-cli/src/commands/memory.rs` | #52 | 8 | Commands — `memory` |
 | `crates/talicode-cli/src/commands/map.rs` | #52 | 8 | Commands — `map` |

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "talicode-skills"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "TaliCode skills — the skill host: discovery, parsing, and invocation."
+
+[dependencies]
+talicode-core = { path = "../talicode-core" }
+talicode-agent = { path = "../talicode-agent" }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+thiserror = "2"
+rust-embed = "8"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }
+tempfile = "3"

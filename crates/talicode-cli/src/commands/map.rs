@@ -7,7 +7,7 @@
 //! routes agent greps here are roadmap (see docs/roadmaps/ROADMAP-MEMORY.md).
 
 use clap::Args as ClapArgs;
-use talicode_core::architecture;
+use talicode_memory::architecture;
 
 #[derive(ClapArgs, Debug)]
 pub struct Args {

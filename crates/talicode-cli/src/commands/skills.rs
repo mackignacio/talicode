@@ -8,7 +8,7 @@
 //! unit-tested; `run` does the discovery IO.
 
 use clap::Args as ClapArgs;
-use talicode_core::host::discover::{Catalog, Discovered, Source};
+use talicode_skills::host::discover::{Catalog, Discovered, Source};
 
 #[derive(ClapArgs, Debug)]
 pub struct Args {
@@ -67,7 +67,7 @@ fn source_label(source: Source) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use talicode_core::host::skill::{Skill, SkillKind};
+    use talicode_skills::host::skill::{Skill, SkillKind};
 
     fn discovered(name: &str, desc: &str, source: Source) -> Discovered {
         Discovered {

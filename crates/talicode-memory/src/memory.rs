@@ -7,10 +7,10 @@
 //! rank fed into the Auditor's context; a vector/knowledge-graph backend is
 //! roadmap. IO is best-effort; the pure ranking/formatting is unit-tested.
 
-use crate::usage::local_today;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use talicode_core::usage::local_today;
 
 /// Repo-local directory holding semantic-memory markdown files (committed).
 pub const MEMORY_DIR: &str = ".talicode/memory";

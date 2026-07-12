@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT
+[package]
+name = "talicode-agent"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "TaliCode agent — the Auditor that turns files and rules into findings."
+
+[dependencies]
+talicode-core = { path = "../talicode-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread"] }

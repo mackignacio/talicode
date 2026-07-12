@@ -7,13 +7,13 @@
 //! rules are composed into the Auditor's prompt, findings are de-duplicated by
 //! (file, line, rule), and the run is APPROVED only when no findings remain.
 
-use crate::auditor::{audit, AuditRequest};
 use crate::host::discover::{Catalog, DiscoverError};
 use crate::host::retrieve;
 use crate::host::skill::{Skill, SkillKind};
-use crate::provider::{Provider, ProviderError, Usage};
-use crate::report::Finding;
 use std::collections::BTreeSet;
+use talicode_agent::auditor::{audit, AuditRequest};
+use talicode_core::provider::{Provider, ProviderError, Usage};
+use talicode_core::report::Finding;
 
 /// Memory-aware options for an invocation (all default ⇒ pre-memory behavior:
 /// every selected lens runs and no memory context is injected).
@@ -195,10 +195,10 @@ fn dedup(findings: Vec<Finding>) -> Vec<Finding> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::provider::FakeProvider;
-    use crate::report::Severity;
     use serde_json::json;
     use std::path::Path;
+    use talicode_core::provider::FakeProvider;
+    use talicode_core::report::Severity;
 
     fn catalog() -> Catalog {
         Catalog::discover(Path::new("/nonexistent-repo")).unwrap()
