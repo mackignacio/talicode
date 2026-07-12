@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: MIT
+name: Release (npm)
+
+# Cross-compile the native `tali` binary for every supported platform, stage
+# each into its npm platform package, and publish all six packages (platform
+# packages first, the `talicode` wrapper last). Triggered by pushing a v* tag.
+#
+# Requires repo secret NPM_TOKEN — an npm automation token with publish rights.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: build ${{ matrix.pkg }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14
+            pkg: talicode-darwin-arm64
+            bin: tali
+          - target: x86_64-apple-darwin
+            os: macos-13
+            pkg: talicode-darwin-x64
+            bin: tali
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            pkg: talicode-linux-x64
+            bin: tali
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+            pkg: talicode-linux-arm64
+            bin: tali
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            pkg: talicode-win32-x64
+            bin: tali.exe
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }} -p talicode-cli
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.pkg }}
+          path: target/${{ matrix.target }}/release/${{ matrix.bin }}
+          if-no-files-found: error
+
+  publish:
+    name: publish to npm
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Stage binaries into platform packages
+        run: |
+          set -euo pipefail
+          declare -A BIN=(
+            [talicode-darwin-arm64]=tali
+            [talicode-darwin-x64]=tali
+            [talicode-linux-x64]=tali
+            [talicode-linux-arm64]=tali
+            [talicode-win32-x64]=tali.exe
+          )
+          for pkg in "${!BIN[@]}"; do
+            bin="${BIN[$pkg]}"
+            cp "artifacts/$pkg/$bin" "npm/platform/$pkg/$bin"
+            chmod +x "npm/platform/$pkg/$bin"
+            echo "staged $bin -> npm/platform/$pkg/"
+          done
+      - name: Publish (platform packages first, wrapper last)
+        run: scripts/npm-publish.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
