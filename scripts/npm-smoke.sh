@@ -54,7 +54,7 @@ trap cleanup EXIT
 
 # --- 3. pack the wrapper + platform package ----------------------------------
 echo "npm-smoke: packing tarballs..."
-WRAPPER_TGZ="$(cd "$SCRATCH" && npm pack "$REPO_ROOT/npm/core" --silent)"
+WRAPPER_TGZ="$(cd "$SCRATCH" && npm pack "$REPO_ROOT" --silent)"
 PLATFORM_TGZ="$(cd "$SCRATCH" && npm pack "$REPO_ROOT/npm/platform/$PKG" --silent)"
 
 # --- 4. install both tarballs into a scratch project (offline) ----------------
@@ -68,7 +68,7 @@ npm install --omit=optional --no-audit --no-fund --loglevel=error \
 
 # --- 5. assertions -----------------------------------------------------------
 echo "npm-smoke: checking 'tali --version'..."
-EXPECTED_VERSION="$(node -p "require('$REPO_ROOT/npm/core/package.json').version")"
+EXPECTED_VERSION="$(node -p "require('$REPO_ROOT/package.json').version")"
 VERSION_OUT="$(npx --no-install tali --version)"
 echo "  -> $VERSION_OUT"
 case "$VERSION_OUT" in
